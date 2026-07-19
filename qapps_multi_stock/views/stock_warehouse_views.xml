@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 QEI SRL (Polpo) - License OPL-1 -->
+<odoo>
+    <record id="view_warehouse_form_multi_stock" model="ir.ui.view">
+        <field name="name">stock.warehouse.form.multi.stock</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse" />
+        <field name="arch" type="xml">
+            <!-- El form de almacén (stock.view_warehouse) expone el campo 'code'
+                 dentro del grupo de datos del almacén; insertamos el bloque
+                 multi-depósito a continuación. Se completa en el almacén que
+                 vende sin tener el stock (el almacén destino). -->
+            <xpath expr="//field[@name='code']" position="after">
+                <separator string="Multi depósito (reabastecimiento inter-almacén)" colspan="2" />
+                <field name="multi_stock_source_warehouse_id" />
+                <field
+                    name="multi_stock_transit_location_id"
+                    invisible="not multi_stock_source_warehouse_id"
+                    required="multi_stock_source_warehouse_id"
+                />
+                <field
+                    name="multi_stock_out_type_id"
+                    invisible="not multi_stock_source_warehouse_id"
+                    required="multi_stock_source_warehouse_id"
+                />
+                <field
+                    name="multi_stock_in_type_id"
+                    invisible="not multi_stock_source_warehouse_id"
+                    required="multi_stock_source_warehouse_id"
+                />
+                <field
+                    name="multi_stock_dropship_type_id"
+                    invisible="not multi_stock_source_warehouse_id"
+                    required="multi_stock_source_warehouse_id"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

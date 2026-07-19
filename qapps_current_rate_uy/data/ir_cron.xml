@@ -1,0 +1,38 @@
+<odoo>
+    <data noupdate="1">
+        <record id="default_currency_cotizacion_moneda" model="ir.config_parameter">
+            <field name="key">qapps.currency_cotizacion_moneda</field>
+            <field name="value" eval="True" />
+        </record>
+
+        <record id="default_currency_servicio_fecha_cierre" model="ir.config_parameter">
+            <field name="key">qapps.currency_servicio_fecha_cierre</field>
+            <field name="value">
+                https://cotizaciones.bcu.gub.uy/wscotizaciones/servlet/awsultimocierre?wsdl
+            </field>
+        </record>
+
+        <record id="default_currency_servicio_cotizacion" model="ir.config_parameter">
+            <field name="key">qapps.currency_servicio_cotizacion</field>
+            <field name="value">
+                https://cotizaciones.bcu.gub.uy/wscotizaciones/servlet/awsbcucotizaciones?wsdl
+            </field>
+        </record>
+
+        <record id="current_rate_uy_cron" model="ir.cron">
+            <field name="name">Actualizar tasa de cambio.</field>
+            <field name="model_id" ref="base.model_res_currency" />
+            <field name="state">code</field>
+            <field name="code">model.exchange_task()</field>
+            <field name="interval_number">1</field>
+            <field name="interval_type">days</field>
+            <field name="numbercall">-1</field>
+            <field name="active" eval="False" />
+            <field name="doall" eval="False" />
+            <field
+                name="nextcall"
+                eval="(DateTime.now() + timedelta(days=1)).strftime('%Y-%m-%d 10:00:00')"
+            />
+        </record>
+    </data>
+</odoo>

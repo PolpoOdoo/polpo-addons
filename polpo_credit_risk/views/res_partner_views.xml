@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!--
+        Rediseño de la pestaña "Riesgo financiero" del partner.
+
+        El layout OCA original (account_financial_risk + sale_financial_risk)
+        separa cada rubro en dos columnas desconectadas: el check "Incluir X"
+        con su monto a la izquierda y el "Límite en X" a la derecha, con
+        floats hackeados. Acá se reemplaza por una matriz: una fila por rubro
+        con monto actual (drill-down), check de inclusión y límite específico
+        juntos.
+
+        priority=99: debe aplicarse DESPUÉS de la herencia de
+        sale_financial_risk (priority 16), que inserta sus campos dentro del
+        grupo risk_general que este rediseño reemplaza. Todos los campos
+        OCA + sale + propios se re-agregan explícitamente abajo.
+    -->
+    <record id="res_partner_view_risk_deferred_checks" model="ir.ui.view">
+        <field name="name">res.partner.view.risk.polpo.redesign</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account_financial_risk.res_partner_view_risk" />
+        <field name="priority" eval="99" />
+        <field name="arch" type="xml">
+            <!-- Ribbon de vigencia del crédito adicional (esquina sup. der.) -->
+            <xpath expr="//sheet" position="inside">
+                <widget
+                    name="web_ribbon"
+                    title="Crédito adicional vigente"
+                    bg_color="text-bg-success"
+                    invisible="not additional_credit_is_active"
+                    groups="account.group_account_manager"
+                />
+            </xpath>
+
+            <!-- El grupo "Info" original se integra en "Límite de crédito" -->
+            <xpath expr="//page[@name='financial_risk']/group[2]" position="replace" />
+
+            <!-- Reemplazo del layout de dos columnas por el rediseño -->
+            <xpath
+                expr="//page[@name='financial_risk']/group[@name='risk_general']"
+                position="replace">
+                <field name="risk_allow_edit" invisible="1" />
+                <field name="additional_credit_is_active" invisible="1" />
+
+                <group name="polpo_credit_config">
+                    <group string="Límite de crédito" name="polpo_credit_limit">
+                        <label for="credit_currency" string="Divisa de crédito" />
+                        <div class="o_row">
+                            <field name="credit_currency" readonly="not risk_allow_edit" />
+                            <span>
+                                (
+                                <field name="risk_currency_id" readonly="1" class="oe_inline" />
+                                )
+                            </span>
+                        </div>
+                        <field
+                            name="manual_credit_currency_id"
+                            options="{'no_create': True}"
+                            readonly="not risk_allow_edit"
+                            invisible="credit_currency != 'manual'"
+                        />
+                        <label for="credit_limit" />
+                        <div class="o_row">
+                            <field
+                                name="credit_limit"
+                                widget="monetary"
+                                options="{'currency_field': 'risk_currency_id'}"
+                                readonly="not risk_allow_edit"
+                            />
+                            <span class="text-muted" invisible="not date_credit_limit">
+                                (desde
+                                <field
+                                    name="date_credit_limit"
+                                    widget="date"
+                                    readonly="1"
+                                    class="oe_inline"
+                                />
+                                )
+                            </span>
+                        </div>
+                        <field name="credit_policy" readonly="not risk_allow_edit" />
+                        <field name="risk_exception" />
+                    </group>
+                    <group string="Crédito adicional temporal" name="polpo_additional_credit">
+                        <field
+                            name="additional_credit_amount"
+                            readonly="not risk_allow_edit"
+                            widget="monetary"
+                            options="{'currency_field': 'risk_currency_id'}"
+                        />
+                        <field name="additional_credit_date_from" readonly="not risk_allow_edit" />
+                        <field name="additional_credit_date_to" readonly="not risk_allow_edit" />
+                        <label for="effective_credit_limit" />
+                        <div class="o_row">
+                            <field
+                                name="effective_credit_limit"
+                                class="fw-bold"
+                                widget="monetary"
+                                options="{'currency_field': 'risk_currency_id'}"
+                            />
+                        </div>
+                        <div
+                            class="text-muted small"
+                            colspan="2"
+                            invisible="not additional_credit_is_active">
+                            <span>Límite base</span>
+                            <field
+                                name="credit_limit"
+                                readonly="1"
+                                widget="monetary"
+                                options="{'currency_field': 'risk_currency_id'}"
+                                class="oe_inline"
+                            />
+                            <span>+ adicional</span>
+                            <field
+                                name="additional_credit_amount"
+                                readonly="1"
+                                widget="monetary"
+                                options="{'currency_field': 'risk_currency_id'}"
+                                class="oe_inline"
+                            />
+                        </div>
+                    </group>
+                </group>
+
+                <separator string="Rubros de riesgo" />
+                <div class="text-muted mb-2">
+                    <strong>Incluir</strong>
+                    : el rubro suma al Riesgo total,
+                    que se controla contra el límite de crédito efectivo.
+                    <strong>Límite específico</strong>
+                    : tope propio del rubro,
+                    independiente del límite de crédito; en 0 el rubro no se
+                    controla.
+                </div>
+                <table class="table table-sm w-auto" name="polpo_risk_matrix">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 280px;">Rubro</th>
+                            <th class="text-end" style="min-width: 140px;">Monto actual</th>
+                            <th class="text-center" style="min-width: 80px;">Incluir</th>
+                            <th class="text-end" style="min-width: 170px;">Límite específico</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Pedidos de venta a facturar</td>
+                            <td class="text-end">
+                                <button
+                                    name="open_risk_pivot_info"
+                                    type="object"
+                                    class="btn-link p-0"
+                                    context="{'open_risk_field': 'risk_sale_order'}">
+                                    <field
+                                        name="risk_sale_order"
+                                        widget="monetary"
+                                        options="{'currency_field': 'risk_currency_id'}"
+                                    />
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <field
+                                    name="risk_sale_order_include"
+                                    readonly="not risk_allow_edit"
+                                />
+                            </td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_sale_order_limit"
+                                    readonly="not risk_allow_edit"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Facturas en borrador</td>
+                            <td class="text-end">
+                                <button
+                                    name="open_risk_pivot_info"
+                                    type="object"
+                                    class="btn-link p-0"
+                                    context="{'open_risk_field': 'risk_invoice_draft'}">
+                                    <field
+                                        name="risk_invoice_draft"
+                                        widget="monetary"
+                                        options="{'currency_field': 'risk_currency_id'}"
+                                    />
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <field
+                                    name="risk_invoice_draft_include"
+                                    readonly="not risk_allow_edit"
+                                />
+                            </td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_invoice_draft_limit"
+                                    readonly="not risk_allow_edit"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Facturas abiertas (no vencidas)</td>
+                            <td class="text-end">
+                                <button
+                                    name="open_risk_pivot_info"
+                                    type="object"
+                                    class="btn-link p-0"
+                                    context="{'open_risk_field': 'risk_invoice_open'}">
+                                    <field
+                                        name="risk_invoice_open"
+                                        widget="monetary"
+                                        options="{'currency_field': 'risk_currency_id'}"
+                                    />
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <field
+                                    name="risk_invoice_open_include"
+                                    readonly="not risk_allow_edit"
+                                />
+                            </td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_invoice_open_limit"
+                                    readonly="not risk_allow_edit"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                Deuda vencida
+                                <div class="text-muted small">
+                                    Al incluirla, vender o facturar a un
+                                    cliente con deuda vencida requiere
+                                    autorización.
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                <button
+                                    name="open_risk_pivot_info"
+                                    type="object"
+                                    class="btn-link p-0"
+                                    context="{'open_risk_field': 'risk_invoice_unpaid'}">
+                                    <field
+                                        name="risk_invoice_unpaid"
+                                        widget="monetary"
+                                        options="{'currency_field': 'risk_currency_id'}"
+                                    />
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <field
+                                    name="risk_invoice_unpaid_include"
+                                    readonly="not risk_allow_edit"
+                                />
+                            </td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_invoice_unpaid_limit"
+                                    readonly="not risk_allow_edit"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Cheques diferidos en cartera</td>
+                            <td class="text-end">
+                                <button
+                                    name="open_risk_pivot_info"
+                                    type="object"
+                                    class="btn-link p-0"
+                                    context="{'open_risk_field': 'risk_deferred_checks'}">
+                                    <field
+                                        name="risk_deferred_checks"
+                                        widget="monetary"
+                                        options="{'currency_field': 'risk_currency_id'}"
+                                    />
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <field
+                                    name="risk_deferred_checks_include"
+                                    readonly="not risk_allow_edit"
+                                />
+                            </td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_deferred_checks_limit"
+                                    readonly="not risk_allow_edit"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Otros saldos contables (no vencidos)</td>
+                            <td class="text-end">
+                                <button
+                                    name="open_risk_pivot_info"
+                                    type="object"
+                                    class="btn-link p-0"
+                                    context="{'open_risk_field': 'risk_account_amount'}">
+                                    <field
+                                        name="risk_account_amount"
+                                        widget="monetary"
+                                        options="{'currency_field': 'risk_currency_id'}"
+                                    />
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <field
+                                    name="risk_account_amount_include"
+                                    readonly="not risk_allow_edit"
+                                />
+                            </td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_account_amount_limit"
+                                    readonly="not risk_allow_edit"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Otros saldos contables vencidos</td>
+                            <td class="text-end">
+                                <button
+                                    name="open_risk_pivot_info"
+                                    type="object"
+                                    class="btn-link p-0"
+                                    context="{'open_risk_field': 'risk_account_amount_unpaid'}">
+                                    <field
+                                        name="risk_account_amount_unpaid"
+                                        widget="monetary"
+                                        options="{'currency_field': 'risk_currency_id'}"
+                                    />
+                                </button>
+                            </td>
+                            <td class="text-center">
+                                <field
+                                    name="risk_account_amount_unpaid_include"
+                                    readonly="not risk_allow_edit"
+                                />
+                            </td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_account_amount_unpaid_limit"
+                                    readonly="not risk_allow_edit"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td class="fw-bold">Riesgo total (rubros incluidos)</td>
+                            <td class="text-end fw-bold">
+                                <field
+                                    name="risk_total"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                />
+                            </td>
+                            <td />
+                            <td />
+                        </tr>
+                        <tr>
+                            <td>Crédito disponible</td>
+                            <td class="text-end">
+                                <field
+                                    name="risk_remaining_value"
+                                    widget="monetary"
+                                    options="{'currency_field': 'risk_currency_id'}"
+                                    class="oe_inline"
+                                />
+                                <span>(</span>
+                                <field name="risk_remaining_percentage" class="oe_inline" />
+                                <span>%)</span>
+                            </td>
+                            <td />
+                            <td />
+                        </tr>
+                    </tfoot>
+                </table>
+            </xpath>
+        </field>
+    </record>
+</odoo>

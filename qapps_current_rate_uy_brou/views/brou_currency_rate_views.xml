@@ -1,0 +1,51 @@
+<odoo>
+    <record id="view_res_currency_rate_tree" model="ir.ui.view">
+        <field name="name">res.currency.rate.tree</field>
+        <field name="model">res.currency.rate</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="currency_id" />
+                <field name="buy_rate" />
+                <field name="sell_rate" />
+                <field name="date" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="view_res_currency_rate_form" model="ir.ui.view">
+        <field name="name">res.currency.rate.form</field>
+        <field name="model">res.currency.rate</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="currency_id" />
+                        <field name="buy_rate" />
+                        <field name="sell_rate" />
+                        <field name="date" />
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_res_currency_rates" model="ir.actions.act_window">
+        <field name="name">Tasas de Cambios BROU</field>
+        <field name="res_model">res.currency.rate</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem
+        id="menu_res_currency_rates"
+        name="Tasas de cambio BROU"
+        parent="account.menu_account_config"
+        sequence="163"
+    />
+    <!-- Un número mayor que el de "Monedas" -->
+
+    <menuitem
+        id="menu_action_res_currency_rates"
+        parent="menu_res_currency_rates"
+        action="action_res_currency_rates"
+    />
+</odoo>

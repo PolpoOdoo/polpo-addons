@@ -1,0 +1,9 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_qapps_check_wallet_invoice,qapps.check.wallet invoice,model_qapps_check_wallet,account.group_account_invoice,1,0,0,0
+access_qapps_check_wallet_user,qapps.check.wallet user,model_qapps_check_wallet,account.group_account_user,1,0,0,0
+access_qapps_check_endorsement_invoice,qapps.check.endorsement invoice,model_qapps_check_endorsement,account.group_account_invoice,1,1,1,1
+access_qapps_check_endorsement_user,qapps.check.endorsement user,model_qapps_check_endorsement,account.group_account_user,1,1,1,1
+access_qapps_check_collection_invoice,qapps.check.collection invoice,model_qapps_check_collection,account.group_account_invoice,1,1,1,1
+access_qapps_check_collection_user,qapps.check.collection user,model_qapps_check_collection,account.group_account_user,1,1,1,1
+access_qapps_check_collection_account_invoice,qapps.check.collection.account invoice,model_qapps_check_collection_account,account.group_account_invoice,1,0,0,0
+access_qapps_check_collection_account_manager,qapps.check.collection.account manager,model_qapps_check_collection_account,account.group_account_manager,1,1,1,1

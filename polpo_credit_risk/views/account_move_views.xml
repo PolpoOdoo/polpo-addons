@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="account_move_view_form_credit_override" model="ir.ui.view">
+        <field name="name">account.move.form.credit.override</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <!-- Ribbon: operado bajo excepción crediticia -->
+            <xpath expr="//sheet" position="inside">
+                <widget
+                    name="web_ribbon"
+                    title="Bajo excepción"
+                    bg_color="text-bg-warning"
+                    invisible="not credit_override_flag"
+                />
+            </xpath>
+
+            <!-- Warning informativo en factura borrador (paridad con venta) -->
+            <xpath expr="//sheet" position="before">
+                <div
+                    class="alert alert-warning mb-0"
+                    role="alert"
+                    invisible="not credit_warning_msg">
+                    <field name="credit_warning_msg" nolabel="1" readonly="1" />
+                </div>
+            </xpath>
+
+            <xpath expr="//page[@name='other_info']" position="inside">
+                <group string="Excepción crediticia" invisible="not credit_override_flag">
+                    <field name="credit_override_flag" invisible="1" />
+                    <field name="credit_override_user_id" />
+                    <field name="credit_override_date" />
+                    <field name="credit_override_reason" />
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

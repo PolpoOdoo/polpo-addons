@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo noupdate="1">
+    <record id="seq_qapps_check_endorsement" model="ir.sequence">
+        <field name="name">Endoso de cheques</field>
+        <field name="code">qapps.check.endorsement</field>
+        <field name="prefix">END</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False" />
+    </record>
+    <record id="seq_qapps_check_collection" model="ir.sequence">
+        <field name="name">Envío de cheques al cobro</field>
+        <field name="code">qapps.check.collection</field>
+        <field name="prefix">COB</field>
+        <field name="padding">4</field>
+        <field name="company_id" eval="False" />
+    </record>
+</odoo>

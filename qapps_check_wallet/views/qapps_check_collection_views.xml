@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="qapps_check_collection_view_form" model="ir.ui.view">
+        <field name="name">qapps.check.collection.form</field>
+        <field name="model">qapps.check.collection</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button
+                        name="action_validate"
+                        type="object"
+                        string="Enviar al cobro"
+                        class="btn-primary"
+                        invisible="state != 'draft'"
+                    />
+                    <button
+                        name="action_back_to_draft"
+                        type="object"
+                        string="Volver a borrador"
+                        invisible="state != 'sent'"
+                        confirm="¿Seguro que desea volver el envío a borrador? Se eliminará el asiento y los cheques volverán a la cartera."
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,sent" />
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_move"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-book"
+                            invisible="not move_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver asiento</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label string="Envío al cobro" for="name" />
+                        <h1>
+                            <field name="name" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="collection_date" readonly="state == 'sent'" />
+                            <field
+                                name="journal_id"
+                                readonly="state == 'sent'"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="bank_journal_id"
+                                readonly="state == 'sent'"
+                                options="{'no_create': True}"
+                            />
+                            <field
+                                name="currency_id"
+                                groups="base.group_multi_currency"
+                                readonly="state == 'sent'"
+                                options="{'no_open': True, 'no_create': True}"
+                            />
+                            <field name="currency_id" invisible="1" />
+                            <field name="company_id" invisible="1" />
+                        </group>
+                        <group>
+                            <field name="in_hand_check_account_id" />
+                            <field name="collection_account_id" />
+                            <field name="check_count" />
+                            <field name="total_check_amount" />
+                            <field name="credited_count" invisible="state != 'sent'" />
+                            <field name="rejected_count" invisible="state != 'sent'" />
+                            <field name="move_id" invisible="not move_id" />
+                        </group>
+                    </group>
+                    <div class="alert alert-info" role="alert" invisible="state != 'sent'">
+                        La acreditación bancaria o el rechazo de cada cheque se registran
+                        desde la lista
+                        <strong>Cheques en cartera</strong>
+                        (filtro "Al cobro"),
+                        ya que un mismo envío puede acreditar unos cheques y que otros sean
+                        rechazados.
+                    </div>
+                    <notebook>
+                        <page string="Cheques a enviar" name="checks">
+                            <field
+                                name="check_payment_ids"
+                                nolabel="1"
+                                widget="many2many"
+                                readonly="state == 'sent'"
+                                domain="[('reconciled', '=', False),
+                                            ('debit', '>', 0),
+                                            ('check_deposit_id', '=', False),
+                                            ('check_endorsement_id', '=', False),
+                                            ('check_collection_id', '=', False),
+                                            ('currency_id', '=', currency_id),
+                                            ('account_id', '=', in_hand_check_account_id),
+                                            ('company_id', '=', company_id),
+                                            ('parent_state', '=', 'posted')]"
+                                context="{'currency': currency_id, 'journal_id': journal_id}">
+                                <tree>
+                                    <field name="date" />
+                                    <field
+                                        name="vencimiento"
+                                        string="Vto. cheque"
+                                        optional="show"
+                                    />
+                                    <field
+                                        name="numero_cheque"
+                                        string="Número de cheque"
+                                        optional="show"
+                                    />
+                                    <field name="move_id" />
+                                    <field name="ref" optional="show" />
+                                    <field name="partner_id" />
+                                    <field
+                                        name="check_collection_state"
+                                        string="Situación"
+                                        widget="badge"
+                                        optional="show"
+                                        decoration-warning="check_collection_state == 'at_collection'"
+                                        decoration-success="check_collection_state == 'credited'"
+                                        decoration-danger="check_collection_state == 'rejected'"
+                                    />
+                                    <field
+                                        name="collection_settle_move_id"
+                                        string="Asiento acred./rechazo"
+                                        optional="show"
+                                    />
+                                    <field name="balance" sum="Total" optional="show" />
+                                    <field
+                                        name="amount_currency"
+                                        groups="base.group_multi_currency"
+                                        sum="Total moneda"
+                                        optional="hide"
+                                    />
+                                    <field name="currency_id" invisible="1" />
+                                    <field name="company_currency_id" invisible="1" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers" />
+                    <field name="activity_ids" widget="mail_activity" />
+                    <field name="message_ids" widget="mail_thread" />
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="qapps_check_collection_view_tree" model="ir.ui.view">
+        <field name="name">qapps.check.collection.tree</field>
+        <field name="model">qapps.check.collection</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name" decoration-bf="1" />
+                <field name="collection_date" />
+                <field name="bank_journal_id" optional="show" />
+                <field name="journal_id" optional="hide" />
+                <field name="check_count" />
+                <field name="credited_count" optional="show" />
+                <field name="rejected_count" optional="show" />
+                <field name="total_check_amount" decoration-bf="1" />
+                <field name="currency_id" groups="base.group_multi_currency" optional="show" />
+                <field name="company_id" groups="base.group_multi_company" optional="show" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-success="state == 'sent'"
+                />
+            </tree>
+        </field>
+    </record>
+
+    <record id="qapps_check_collection_view_search" model="ir.ui.view">
+        <field name="name">qapps.check.collection.search</field>
+        <field name="model">qapps.check.collection</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" />
+                <field name="bank_journal_id" />
+                <field name="journal_id" />
+                <filter name="filter_draft" string="Borrador" domain="[('state', '=', 'draft')]" />
+                <filter
+                    name="filter_sent"
+                    string="Enviados al cobro"
+                    domain="[('state', '=', 'sent')]"
+                />
+                <separator />
+                <filter name="filter_date" string="Fecha de envío" date="collection_date" />
+                <group string="Agrupar por" name="groupby">
+                    <filter
+                        name="groupby_bank"
+                        string="Banco"
+                        context="{'group_by': 'bank_journal_id'}"
+                    />
+                    <filter name="groupby_state" string="Estado" context="{'group_by': 'state'}" />
+                    <filter
+                        name="groupby_date"
+                        string="Fecha de envío"
+                        context="{'group_by': 'collection_date'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="qapps_check_collection_action" model="ir.actions.act_window">
+        <field name="name">Envíos al cobro</field>
+        <field name="res_model">qapps.check.collection</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="qapps_check_collection_view_search" />
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Cree un envío de cheques al cobro</p>
+            <p>
+                Entregue cheques de la cartera al banco antes del vencimiento.
+                Al validar, los cheques salen de la cartera y quedan en la cuenta
+                puente de cheques al cobro hasta su acreditación o rechazo.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_qapps_check_collection"
+        name="Envíos al cobro"
+        parent="account.menu_finance_receivables"
+        action="qapps_check_collection_action"
+        sequence="26"
+    />
+
+    <!-- Configuración: mapeo de cuentas por moneda -->
+    <record id="qapps_check_collection_account_view_tree" model="ir.ui.view">
+        <field name="name">qapps.check.collection.account.tree</field>
+        <field name="model">qapps.check.collection.account</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="company_id" optional="hide" />
+                <field name="currency_id" />
+                <field name="collection_account_id" />
+                <field name="rejected_account_id" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="qapps_check_collection_account_action" model="ir.actions.act_window">
+        <field name="name">Cheques al cobro: cuentas</field>
+        <field name="res_model">qapps.check.collection.account</field>
+        <field name="view_mode">tree</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Configure las cuentas por moneda</p>
+            <p>
+                Por cada moneda, indique la cuenta puente de cheques al cobro y la
+                cuenta de cheques rechazados.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_qapps_check_collection_account"
+        name="Cheques al cobro: cuentas"
+        parent="account.menu_finance_configuration"
+        action="qapps_check_collection_account_action"
+        sequence="100"
+    />
+</odoo>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 QEI SRL (Polpo) - License OPL-1 -->
+<odoo>
+    <record id="view_picking_form_multi_stock" model="ir.ui.view">
+        <field name="name">stock.picking.form.multi.stock</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form" />
+        <field name="arch" type="xml">
+            <!-- Trazabilidad del reabastecimiento inter-almacén: en la recepción
+                 se ve el despacho que la generó (para controlar contra lo
+                 despachado) y, en los documentos del flujo de venta, el pedido. -->
+            <field name="origin" position="after">
+                <field
+                    name="multi_stock_dispatch_id"
+                    readonly="1"
+                    invisible="not multi_stock_dispatch_id"
+                />
+                <field
+                    name="multi_stock_sale_id"
+                    readonly="1"
+                    invisible="not multi_stock_sale_id"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

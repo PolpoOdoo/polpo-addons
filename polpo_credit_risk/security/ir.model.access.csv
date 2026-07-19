@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_polpo_credit_override_wiz_authorizer,polpo.credit.override.wiz authorizer,model_polpo_credit_override_wiz,group_credit_authorizer,1,1,1,1
+access_polpo_credit_override_wiz_user,polpo.credit.override.wiz user,model_polpo_credit_override_wiz,base.group_user,1,0,1,0

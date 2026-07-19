@@ -1,0 +1,351 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="qapps_check_wallet_view_form" model="ir.ui.view">
+        <field name="name">qapps.check.wallet.form</field>
+        <field name="model">qapps.check.wallet</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false" delete="false">
+                <header>
+                    <field
+                        name="state"
+                        widget="statusbar"
+                        statusbar_visible="pending,at_collection,credited,deposited,endorsed"
+                    />
+                </header>
+                <sheet>
+                    <field name="payment_id" invisible="1" />
+                    <field name="currency_id" invisible="1" />
+                    <field name="collection_settle_move_id" invisible="1" />
+                    <div class="oe_button_box" name="button_box">
+                        <button
+                            name="action_open_payment"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-money"
+                            invisible="not payment_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver pago</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_move"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-book">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver asiento</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_deposit"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-university"
+                            invisible="not check_deposit_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver boleta</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_endorsement"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-exchange"
+                            invisible="not check_endorsement_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver endoso</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_collection"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-university"
+                            invisible="not check_collection_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver envío al cobro</span>
+                            </div>
+                        </button>
+                        <button
+                            name="action_open_settle_move"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-book"
+                            invisible="not collection_settle_move_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Ver acreditación / rechazo</span>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <label for="check_number" string="Número de cheque" />
+                        <h1>
+                            <field name="check_number" readonly="1" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="1" />
+                            <field name="payment_date" readonly="1" />
+                            <field name="due_date" readonly="1" />
+                            <field name="bank_reference" readonly="1" />
+                        </group>
+                        <group>
+                            <field name="journal_id" readonly="1" />
+                            <field name="amount" readonly="1" />
+                            <field
+                                name="currency_id"
+                                readonly="1"
+                                groups="base.group_multi_currency"
+                            />
+                            <field name="check_deposit_id" readonly="1" />
+                            <field
+                                name="deposit_state"
+                                readonly="1"
+                                invisible="not check_deposit_id"
+                            />
+                            <field
+                                name="check_endorsement_id"
+                                readonly="1"
+                                invisible="not check_endorsement_id"
+                            />
+                            <field
+                                name="endorsement_state"
+                                readonly="1"
+                                invisible="not check_endorsement_id"
+                            />
+                            <field
+                                name="check_collection_id"
+                                readonly="1"
+                                invisible="not check_collection_id"
+                            />
+                            <field
+                                name="company_id"
+                                readonly="1"
+                                groups="base.group_multi_company"
+                            />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="qapps_check_wallet_view_tree" model="ir.ui.view">
+        <field name="name">qapps.check.wallet.tree</field>
+        <field name="model">qapps.check.wallet</field>
+        <field name="arch" type="xml">
+            <tree
+                js_class="qapps_check_wallet_list"
+                create="false"
+                edit="false"
+                delete="false"
+                decoration-muted="state in ('deposited', 'endorsed', 'credited', 'rejected')">
+                <header>
+                    <button
+                        name="action_create_collection"
+                        type="object"
+                        string="Enviar al cobro"
+                        class="btn-primary"
+                    />
+                    <button
+                        name="action_credit_collection"
+                        type="object"
+                        string="Acreditar en banco"
+                        confirm="¿Confirma la acreditación bancaria de los cheques seleccionados? Se moverá el importe desde cheques al cobro hacia el banco."
+                    />
+                    <button
+                        name="action_reject_collection"
+                        type="object"
+                        string="Registrar rechazo"
+                        confirm="¿Confirma el rechazo de los cheques seleccionados? Se moverá el importe desde cheques al cobro hacia la cuenta de cheques rechazados."
+                    />
+                    <button
+                        name="action_create_endorsement"
+                        type="object"
+                        string="Endosar a proveedor"
+                    />
+                </header>
+                <field name="payment_date" />
+                <field
+                    name="due_date"
+                    decoration-danger="state == 'pending' and due_date and due_date &lt; current_date"
+                    decoration-bf="state == 'pending' and due_date and due_date &lt; current_date"
+                />
+                <field name="check_number" />
+                <field name="partner_id" />
+                <field name="bank_reference" optional="show" />
+                <field name="journal_id" optional="show" />
+                <field name="currency_id" optional="hide" />
+                <field name="amount" sum="Total" />
+                <field
+                    name="state"
+                    widget="badge"
+                    decoration-info="state == 'pending'"
+                    decoration-warning="state in ('in_deposit', 'in_endorsement', 'in_collection', 'at_collection')"
+                    decoration-success="state in ('deposited', 'credited')"
+                    decoration-primary="state == 'endorsed'"
+                    decoration-danger="state == 'rejected'"
+                />
+                <field name="check_deposit_id" optional="show" />
+                <field name="check_endorsement_id" optional="show" />
+                <field name="check_collection_id" optional="show" />
+                <field name="move_id" optional="hide" />
+                <field name="payment_id" optional="hide" />
+                <field name="company_id" groups="base.group_multi_company" optional="hide" />
+            </tree>
+        </field>
+    </record>
+
+    <record id="qapps_check_wallet_view_search" model="ir.ui.view">
+        <field name="name">qapps.check.wallet.search</field>
+        <field name="model">qapps.check.wallet</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="check_number" />
+                <field name="partner_id" />
+                <field name="bank_reference" string="Referencia / Banco" />
+                <field name="currency_id" />
+                <field name="journal_id" />
+                <field name="check_deposit_id" />
+                <field name="due_date" />
+
+                <filter
+                    name="filter_pending"
+                    string="Pendientes de depósito"
+                    domain="[('state', '=', 'pending')]"
+                />
+                <filter
+                    name="filter_in_deposit"
+                    string="En boleta"
+                    domain="[('state', '=', 'in_deposit')]"
+                />
+                <filter
+                    name="filter_deposited"
+                    string="Depositados"
+                    domain="[('state', '=', 'deposited')]"
+                />
+                <filter
+                    name="filter_in_endorsement"
+                    string="En endoso"
+                    domain="[('state', '=', 'in_endorsement')]"
+                />
+                <filter
+                    name="filter_endorsed"
+                    string="Endosados"
+                    domain="[('state', '=', 'endorsed')]"
+                />
+                <separator />
+                <filter
+                    name="filter_at_collection"
+                    string="Al cobro"
+                    domain="[('state', '=', 'at_collection')]"
+                />
+                <filter
+                    name="filter_at_collection_overdue"
+                    string="Al cobro vencidos"
+                    domain="[('state', '=', 'at_collection'),
+                                 ('due_date', '!=', False),
+                                 ('due_date', '&lt;=', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="filter_credited"
+                    string="Acreditados"
+                    domain="[('state', '=', 'credited')]"
+                />
+                <filter
+                    name="filter_rejected"
+                    string="Rechazados"
+                    domain="[('state', '=', 'rejected')]"
+                />
+                <separator />
+                <filter
+                    name="filter_overdue"
+                    string="Vencidos"
+                    domain="[('state', '=', 'pending'),
+                                 ('due_date', '!=', False),
+                                 ('due_date', '&lt;', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <filter
+                    name="filter_to_expire"
+                    string="A vencer"
+                    domain="[('state', '=', 'pending'),
+                                 ('due_date', '!=', False),
+                                 ('due_date', '&gt;=', context_today().strftime('%Y-%m-%d'))]"
+                />
+                <separator />
+                <filter
+                    name="filter_due_this_week"
+                    string="Vencen esta semana"
+                    domain="[('state', '=', 'pending'),
+                                 ('due_date', '&gt;=', context_today().strftime('%Y-%m-%d')),
+                                 ('due_date', '&lt;=', (context_today() + relativedelta(days=7)).strftime('%Y-%m-%d'))]"
+                />
+
+                <group string="Agrupar por" name="groupby">
+                    <filter
+                        name="groupby_partner"
+                        string="Cliente"
+                        context="{'group_by': 'partner_id'}"
+                    />
+                    <filter
+                        name="groupby_journal"
+                        string="Diario"
+                        context="{'group_by': 'journal_id'}"
+                    />
+                    <filter
+                        name="groupby_currency"
+                        string="Moneda"
+                        context="{'group_by': 'currency_id'}"
+                    />
+                    <filter name="groupby_state" string="Estado" context="{'group_by': 'state'}" />
+                    <filter
+                        name="groupby_deposit"
+                        string="Boleta de depósito"
+                        context="{'group_by': 'check_deposit_id'}"
+                    />
+                    <filter
+                        name="groupby_endorsement"
+                        string="Endoso"
+                        context="{'group_by': 'check_endorsement_id'}"
+                    />
+                    <filter
+                        name="groupby_collection"
+                        string="Envío al cobro"
+                        context="{'group_by': 'check_collection_id'}"
+                    />
+                    <filter
+                        name="groupby_due_date"
+                        string="Vencimiento"
+                        context="{'group_by': 'due_date'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="qapps_check_wallet_action" model="ir.actions.act_window">
+        <field name="name">Cheques en cartera</field>
+        <field name="res_model">qapps.check.wallet</field>
+        <field name="view_mode">tree,form</field>
+        <field name="search_view_id" ref="qapps_check_wallet_view_search" />
+        <field name="context">{'search_default_filter_pending': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No hay cheques en cartera con los filtros actuales.
+            </p>
+            <p>
+                Aquí se listan los cheques recibidos como forma de pago y su estado
+                respecto a la boleta de depósito.
+            </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_qapps_check_wallet"
+        name="Cheques en cartera"
+        parent="account.menu_finance_receivables"
+        action="qapps_check_wallet_action"
+        sequence="25"
+    />
+</odoo>

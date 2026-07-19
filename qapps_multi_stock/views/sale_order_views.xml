@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 QEI SRL (Polpo) - License OPL-1 -->
+<odoo>
+    <record id="view_order_form_multi_stock" model="ir.ui.view">
+        <field name="name">sale.order.form.multi.stock</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <!-- Selector de modo por linea: visible/required SOLO con faltante.
+                 Debe ser rapido (mostrador): un unico dropdown. -->
+            <xpath
+                expr="//field[@name='order_line']/tree/field[@name='product_uom_qty']"
+                position="after">
+                <field name="multi_stock_free_local" optional="show" readonly="1" />
+                <field name="multi_stock_tiene_faltante" column_invisible="1" />
+                <field
+                    name="multi_stock_mode"
+                    required="multi_stock_tiene_faltante"
+                    readonly="not multi_stock_tiene_faltante"
+                    optional="show"
+                />
+                <field name="multi_stock_todo_origen" optional="hide" />
+            </xpath>
+        </field>
+    </record>
+</odoo>

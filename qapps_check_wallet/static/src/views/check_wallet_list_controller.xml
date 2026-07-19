@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t
+        t-name="qapps_check_wallet.CheckWalletListView"
+        t-inherit="web.ListView"
+        t-inherit-mode="primary">
+        <xpath expr="//t[@t-component='props.Renderer']" position="before">
+            <div class="o_check_wallet_dashboard" t-if="dashboard.loaded">
+                <div
+                    class="o_check_wallet_card o_check_wallet_card_pending"
+                    t-on-click="() => this.onCardClick('filter_pending')">
+                    <div class="o_check_wallet_card_icon">
+                        <i class="fa fa-briefcase" />
+                    </div>
+                    <div class="o_check_wallet_card_body">
+                        <div class="o_check_wallet_card_title">Total en cartera</div>
+                        <div class="o_check_wallet_card_amount">
+                            <t t-esc="formatAmount(dashboard.pending_amount)" />
+                        </div>
+                        <div class="o_check_wallet_card_count">
+                            <t t-esc="dashboard.pending_count" />
+                            cheques
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="o_check_wallet_card o_check_wallet_card_deposited"
+                    t-on-click="() => this.onCardClick('filter_deposited')">
+                    <div class="o_check_wallet_card_icon">
+                        <i class="fa fa-university" />
+                    </div>
+                    <div class="o_check_wallet_card_body">
+                        <div class="o_check_wallet_card_title">Total depositado</div>
+                        <div class="o_check_wallet_card_amount">
+                            <t t-esc="formatAmount(dashboard.deposited_amount)" />
+                        </div>
+                        <div class="o_check_wallet_card_count">
+                            <t t-esc="dashboard.deposited_count" />
+                            cheques
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="o_check_wallet_card o_check_wallet_card_at_collection"
+                    t-on-click="() => this.onCardClick('filter_at_collection')">
+                    <div class="o_check_wallet_card_icon">
+                        <i class="fa fa-paper-plane" />
+                    </div>
+                    <div class="o_check_wallet_card_body">
+                        <div class="o_check_wallet_card_title">Total al cobro</div>
+                        <div class="o_check_wallet_card_amount">
+                            <t t-esc="formatAmount(dashboard.at_collection_amount)" />
+                        </div>
+                        <div class="o_check_wallet_card_count">
+                            <t t-esc="dashboard.at_collection_count" />
+                            cheques
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    class="o_check_wallet_card o_check_wallet_card_overdue"
+                    t-on-click="() => this.onCardClick('filter_overdue')">
+                    <div class="o_check_wallet_card_icon">
+                        <i class="fa fa-clock-o" />
+                    </div>
+                    <div class="o_check_wallet_card_body">
+                        <div class="o_check_wallet_card_title">Total vencido pendiente</div>
+                        <div class="o_check_wallet_card_amount">
+                            <t t-esc="formatAmount(dashboard.overdue_amount)" />
+                        </div>
+                        <div class="o_check_wallet_card_count">
+                            <t t-esc="dashboard.overdue_count" />
+                            cheques
+                        </div>
+                    </div>
+                </div>
+
+                <div class="o_check_wallet_card o_check_wallet_card_total">
+                    <div class="o_check_wallet_card_icon">
+                        <i class="fa fa-files-o" />
+                    </div>
+                    <div class="o_check_wallet_card_body">
+                        <div class="o_check_wallet_card_title">Cantidad de cheques</div>
+                        <div class="o_check_wallet_card_amount o_check_wallet_card_amount_count">
+                            <t t-esc="dashboard.total_count" />
+                        </div>
+                        <div class="o_check_wallet_card_count">Total registrados</div>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>
