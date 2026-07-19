@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_account_payment_form_inherit_qapps_retenciones_cce" model="ir.ui.view">
+        <field name="name">account.payment.form.inherit.qapps.retenciones.cce</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form" />
+        <field name="arch" type="xml">
+            <field name="partner_id" position="after">
+                <field name="application_type" />
+                <field
+                    name="retention_id"
+                    invisible="not application_type"
+                    required="application_type"
+                    options="{'no_create': True}"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="qapps_retenciones_cce_view_move_form" model="ir.ui.view">
+        <field name="name">qapps_retenciones_cce.view.move.form</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page
+                    string="Retenciones / CCE"
+                    name="qapps_retenciones_cce_page"
+                    invisible="move_type not in ('out_invoice', 'in_invoice')">
+                    <field name="retention_cce_ids" nolabel="1">
+                        <list string="Retenciones / CCE" editable="bottom">
+                            <field name="application_type" readonly="parent.state not in 'draft'" />
+                            <field
+                                name="base_calculation"
+                                readonly="application_type != 'retention' or parent.state not in 'draft'"
+                                required="application_type == 'retention'"
+                            />
+                            <field
+                                name="invoice_line_ids"
+                                widget="many2many_tags"
+                                options="{'no_create': True, 'no_open': True}"
+                                domain="[('move_id', '=', parent.id), ('display_type', '=', 'product')]"
+                                readonly="application_type != 'retention' or parent.state not in 'draft'"
+                                string="Líneas (vacío = toda la factura)"
+                            />
+                            <field
+                                name="percentage"
+                                readonly="application_type != 'retention' or parent.state not in 'draft'"
+                            />
+                            <field name="amount" />
+                            <field
+                                name="account_id"
+                                options="{'no_create': True}"
+                                readonly="parent.state not in 'draft'"
+                            />
+                            <field name="project_id" options="{'no_create': True}" />
+                            <field name="state" />
+                            <field name="payment_date" />
+                            <field name="payment_id" options="{'no_create': True}" readonly="1" />
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

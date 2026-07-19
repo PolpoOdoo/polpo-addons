@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">qapps_retenciones_cce.res.config.settings.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='default_accounts']" position="inside">
+                <setting
+                    string="Retenciones y Certificados"
+                    help="Cuentas contables para retenciones y certificados de crédito fiscal">
+                    <div class="content-group">
+                        <div class="row mt16">
+                            <label
+                                for="retention_warranty_account_id"
+                                class="col-lg-5 o_light_label"
+                            />
+                            <field name="retention_warranty_account_id" />
+                        </div>
+                        <div class="row mt16">
+                            <label
+                                for="certificate_credit_account_id"
+                                class="col-lg-5 o_light_label"
+                            />
+                            <field name="certificate_credit_account_id" />
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>
