@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<odoo>
+
+    <record id="qapps_barcode_reader_view" model="ir.ui.view">
+        <field name="name">qapps.barcode.reader.form</field>
+        <field name="model">qapps.barcode.reader</field>
+        <field name="arch" type="xml">
+            <form string="Lector de códigos">
+                <field name="barcode_line" nolabel="1">
+                    <tree editable="bottom">
+                        <field name="barcode" string="Códigos de barra" />
+                        <field name="product_id" />
+                        <field name="reserved_availability" />
+                        <field name="qty_checked" />
+                    </tree>
+                </field>
+                <footer>
+                    <button
+                        name="action_done"
+                        string="Guardar"
+                        type="object"
+                        class="btn-primary"
+                    />
+                    <button string="Cancelar" class="btn-secondary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>
