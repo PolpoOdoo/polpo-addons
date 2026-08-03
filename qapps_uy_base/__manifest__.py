@@ -1,5 +1,5 @@
 {
-    "name": "Uruguay - Base fiscal (QApps)",
+    "name": "Uruguay: Base Fiscal - Polpo",
     "summary": "Tipos de documento DGI, validación de RUT/C.I. y utilidades para localización uruguaya",
     "description": """
 Qué hace:
@@ -23,7 +23,7 @@ Sin configuración propia.
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "category": "Localization",
-    "version": "16.0.1.0.0",
+    "version": "16.0.1.0.1",
     "license": "LGPL-3",
     "depends": ["base", "contacts"],
     "data": [

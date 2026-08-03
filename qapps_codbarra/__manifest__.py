@@ -1,5 +1,5 @@
 {
-    "name": "QApps - Código de Barras",
+    "name": "Control de Traslados por Código de Barras - Polpo",
     "summary": "Control de cantidades en traslados de stock mediante lectura de códigos de barras",
     "description": """
 Qué hace:
@@ -26,7 +26,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "category": "Inventory",
-    "version": '16.0.1.0.0',
+    "version": '16.0.1.0.1',
     "license": 'LGPL-3',
     "depends": ["stock"],
     "data": [
