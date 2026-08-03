@@ -1,0 +1,12 @@
+# Finales de línea normalizados a LF en el repositorio.
+# Evita que los checkouts en Windows reintroduzcan CRLF y ensucien los diffs.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.docx binary
+*.xlsx binary
