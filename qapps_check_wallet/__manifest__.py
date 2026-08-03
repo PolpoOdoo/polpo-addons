@@ -20,9 +20,9 @@
         account_check_deposit (OCA) y qapps_cheque_info.
     """,
     "sequence": 150,
-    "version": "17.0.1.3.8",
+    "version": "17.0.1.3.12",
     "category": "Accounting",
-    "license": 'LGPL-3',
+    "license": 'AGPL-3',
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
@@ -31,6 +31,7 @@
         "qapps_cheque_info",
     ],
     "data": [
+        "security/qapps_check_wallet_security.xml",
         "security/ir.model.access.csv",
         "data/sequence.xml",
         "data/cron.xml",

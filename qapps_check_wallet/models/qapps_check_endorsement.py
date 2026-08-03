@@ -35,7 +35,7 @@ class QappsCheckEndorsement(models.Model):
     journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Diario de cheques",
-        domain="[('company_id', '=', company_id), ('is_check_journal', '=', True)]",
+        domain="[('company_id', 'parent_of', company_id), ('is_check_journal', '=', True)]",
         required=True,
         check_company=True,
         tracking=True,

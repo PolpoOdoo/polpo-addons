@@ -13,8 +13,26 @@
         </field>
     </record>
 
-    <!-- Sin implied desde base.group_erp_manager: en bases con usuarios
-         operativos que tienen Ajustes, heredarían la autorización de
-         crédito. El grupo se asigna explícitamente por usuario.
-         No re-agregar el implied. -->
+    <!-- Sin implied desde base.group_erp_manager: hay bases con usuarios
+         operativos con Ajustes que heredarían la autorización de crédito.
+         El grupo se asigna explícitamente por usuario, mismo criterio que
+         Ver costos / Ver precios. No re-agregar el implied. -->
+
+    <!-- Jerarquía de riesgo Usuario < Autorizador (Supervisor) < Gerente:
+         el Gerente de Riesgo financiero (OCA) implica al Autorizador de crédito,
+         de modo que quien puede editar la configuración de riesgo también puede
+         autorizar excepciones. Cadena resultante:
+           group_account_financial_risk_manager
+             -> group_credit_authorizer
+               -> group_account_financial_risk_user.
+         Se extiende el grupo OCA sin modificar su módulo. -->
+    <record
+        id="account_financial_risk.group_account_financial_risk_manager"
+        model="res.groups"
+    >
+        <field
+            name="implied_ids"
+            eval="[(4, ref('polpo_credit_risk.group_credit_authorizer'))]"
+        />
+    </record>
 </odoo>

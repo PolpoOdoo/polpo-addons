@@ -49,16 +49,34 @@ class QappsCheckCollectionAccount(models.Model):
     ]
 
     @api.model
+    def _find_mapping(self, company, currency):
+        """Mapeo aplicable a una compañía: el propio si existe y, si no, el del
+        ancestro más cercano. Las sucursales (branches de Odoo 17) comparten los
+        diarios y las cuentas de la compañía madre, así que también comparten
+        esta configuración en lugar de tener que duplicarla.
+
+        Devuelve un recordset vacío si no hay ninguno configurado."""
+        if not company or not currency:
+            return self.browse()
+        mappings = self.search(
+            [
+                ("company_id", "parent_of", company.id),
+                ("currency_id", "=", currency.id),
+            ]
+        )
+        if len(mappings) <= 1:
+            return mappings
+        # Más de un ancestro con mapeo: gana el más específico (el más profundo
+        # en el árbol de compañías).
+        return mappings.sorted(
+            key=lambda m: len(m.company_id.parent_path or ""), reverse=True
+        )[:1]
+
+    @api.model
     def _get_for_currency(self, company, currency):
         """Devuelve el registro de mapeo para una compañía y moneda dadas,
         o lanza un error claro si no está configurado."""
-        mapping = self.search(
-            [
-                ("company_id", "=", company.id),
-                ("currency_id", "=", currency.id),
-            ],
-            limit=1,
-        )
+        mapping = self._find_mapping(company, currency)
         if not mapping:
             raise UserError(
                 _(

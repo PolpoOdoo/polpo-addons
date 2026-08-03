@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="qapps_check_wallet_multicompany" model="ir.rule">
+        <field name="name">qapps.check.wallet multi-company</field>
+        <field name="model_id" ref="model_qapps_check_wallet" />
+        <field name="global" eval="True" />
+        <field
+            name="domain_force"
+        >['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="qapps_check_collection_multicompany" model="ir.rule">
+        <field name="name">qapps.check.collection multi-company</field>
+        <field name="model_id" ref="model_qapps_check_collection" />
+        <field name="global" eval="True" />
+        <field
+            name="domain_force"
+        >['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <!--
+        El mapeo de cuentas es CONFIGURACIÓN sobre cuentas contables, no un
+        documento: las sucursales comparten el plan de cuentas de la madre y
+        también comparten esta configuración. Va con parent_of, igual que las
+        reglas del core para account.journal y account.account
+        (account/security/account_security.xml: journal_comp_rule y
+        account_comp_rule). Con 'in company_ids' una sucursal sin la madre
+        seleccionada no veía el mapeo y el envío al cobro cortaba al validar.
+    -->
+    <record id="qapps_check_collection_account_multicompany" model="ir.rule">
+        <field name="name">qapps.check.collection.account multi-company</field>
+        <field name="model_id" ref="model_qapps_check_collection_account" />
+        <field name="global" eval="True" />
+        <field
+            name="domain_force"
+        >['|', ('company_id', '=', False), ('company_id', 'parent_of', company_ids)]</field>
+    </record>
+
+    <record id="qapps_check_endorsement_multicompany" model="ir.rule">
+        <field name="name">qapps.check.endorsement multi-company</field>
+        <field name="model_id" ref="model_qapps_check_endorsement" />
+        <field name="global" eval="True" />
+        <field
+            name="domain_force"
+        >['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

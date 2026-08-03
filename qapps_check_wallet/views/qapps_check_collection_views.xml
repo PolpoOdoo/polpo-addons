@@ -54,6 +54,7 @@
                                 readonly="state == 'sent'"
                                 options="{'no_create': True}"
                             />
+                            <field name="boleta_ref" />
                             <field
                                 name="currency_id"
                                 groups="base.group_multi_currency"
@@ -158,6 +159,7 @@
                 <field name="name" decoration-bf="1" />
                 <field name="collection_date" />
                 <field name="bank_journal_id" optional="show" />
+                <field name="boleta_ref" optional="show" />
                 <field name="journal_id" optional="hide" />
                 <field name="check_count" />
                 <field name="credited_count" optional="show" />
@@ -181,6 +183,7 @@
         <field name="arch" type="xml">
             <search>
                 <field name="name" />
+                <field name="boleta_ref" />
                 <field name="bank_journal_id" />
                 <field name="journal_id" />
                 <filter name="filter_draft" string="Borrador" domain="[('state', '=', 'draft')]" />
@@ -196,6 +199,11 @@
                         name="groupby_bank"
                         string="Banco"
                         context="{'group_by': 'bank_journal_id'}"
+                    />
+                    <filter
+                        name="groupby_boleta"
+                        string="Referencia de boleta"
+                        context="{'group_by': 'boleta_ref'}"
                     />
                     <filter name="groupby_state" string="Estado" context="{'group_by': 'state'}" />
                     <filter

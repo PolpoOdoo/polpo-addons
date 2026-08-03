@@ -1,3 +1,5 @@
+from markupsafe import Markup
+
 from odoo import _, api, fields, models, tools
 from odoo.exceptions import UserError
 from odoo.tools import format_date, formatLang
@@ -200,6 +202,10 @@ class QappsCheckWallet(models.Model):
             raise UserError(
                 _("Todos los cheques seleccionados deben estar en la misma moneda.")
             )
+        if len(move_lines.company_id) > 1:
+            raise UserError(
+                _("Todos los cheques seleccionados deben ser de la misma compañía.")
+            )
         return {
             "type": "ir.actions.act_window",
             "name": _("Endoso de cheques"),
@@ -208,6 +214,10 @@ class QappsCheckWallet(models.Model):
             "views": [(False, "form")],
             "target": "current",
             "context": {
+                # El documento sigue a los cheques, no a la compañía activa: los
+                # cheques de una sucursal se endosan en esa sucursal aunque el
+                # usuario esté parado en la madre.
+                "default_company_id": move_lines.company_id.id,
                 "default_journal_id": move_lines.journal_id[:1].id,
                 "default_currency_id": move_lines.currency_id[:1].id
                 or self.env.company.currency_id.id,
@@ -263,6 +273,10 @@ class QappsCheckWallet(models.Model):
             raise UserError(
                 _("Todos los cheques seleccionados deben estar en la misma moneda.")
             )
+        if len(move_lines.company_id) > 1:
+            raise UserError(
+                _("Todos los cheques seleccionados deben ser de la misma compañía.")
+            )
         return {
             "type": "ir.actions.act_window",
             "name": _("Envío al cobro"),
@@ -271,6 +285,10 @@ class QappsCheckWallet(models.Model):
             "views": [(False, "form")],
             "target": "current",
             "context": {
+                # El documento sigue a los cheques, no a la compañía activa: los
+                # cheques de una sucursal se envían al cobro en esa sucursal
+                # aunque el usuario esté parado en la madre.
+                "default_company_id": move_lines.company_id.id,
                 "default_journal_id": move_lines.journal_id[:1].id,
                 "default_currency_id": move_lines.currency_id[:1].id
                 or self.env.company.currency_id.id,
@@ -379,7 +397,10 @@ class QappsCheckWallet(models.Model):
                     self.env, check.amount, currency_obj=check.currency_id
                 )
                 rows.append(
-                    '<li>Cheque <strong>%s</strong> — %s — %s — <a href="%s">Ver cheque</a></li>'
+                    Markup(
+                        "<li>Cheque <strong>%s</strong> — %s — %s — "
+                        '<a href="%s">Ver cheque</a></li>'
+                    )
                     % (
                         check.check_number or _("s/n"),
                         check.partner_id.display_name or "",
@@ -387,7 +408,7 @@ class QappsCheckWallet(models.Model):
                         url,
                     )
                 )
-            return "".join(rows)
+            return Markup("").join(rows)
 
         for user in users:
             user_due = due_checks.filtered(lambda c: c.company_id in user.company_ids)
@@ -396,23 +417,23 @@ class QappsCheckWallet(models.Model):
             )
             if not user_due and not user_collection:
                 continue
-            body = ""
+            body = Markup("")
             if user_due:
-                body += _(
-                    "<p>Cheques en cartera que vencen hoy (%(date)s):</p>"
-                    "<ul>%(rows)s</ul>"
-                    "<p>Recordá realizar el depósito o la transferencia correspondiente.</p>",
-                    date=date_str,
-                    rows=_rows(user_due),
-                )
+                body += Markup(
+                    _(
+                        "<p>Cheques en cartera que vencen hoy (%(date)s):</p>"
+                        "<ul>%(rows)s</ul>"
+                        "<p>Recordá realizar el depósito o la transferencia correspondiente.</p>"
+                    )
+                ) % {"date": date_str, "rows": _rows(user_due)}
             if user_collection:
-                body += _(
-                    "<p>Cheques al cobro vencidos o que vencen hoy (%(date)s):</p>"
-                    "<ul>%(rows)s</ul>"
-                    "<p>Confirmá la acreditación bancaria o registrá el rechazo según corresponda.</p>",
-                    date=date_str,
-                    rows=_rows(user_collection),
-                )
+                body += Markup(
+                    _(
+                        "<p>Cheques al cobro vencidos o que vencen hoy (%(date)s):</p>"
+                        "<ul>%(rows)s</ul>"
+                        "<p>Confirmá la acreditación bancaria o registrá el rechazo según corresponda.</p>"
+                    )
+                ) % {"date": date_str, "rows": _rows(user_collection)}
             self.env["mail.thread"].message_notify(
                 partner_ids=user.partner_id.ids,
                 subject=_("Cheques: vencimientos del día (%s)") % date_str,

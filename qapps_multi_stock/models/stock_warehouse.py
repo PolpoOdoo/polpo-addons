@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from odoo import fields, models
 
@@ -58,4 +58,14 @@ class StockWarehouse(models.Model):
         help="Tipo de operación, en la compañía del almacén ORIGEN, para el "
         "drop-ship Origen/Existencias -> Cliente (R3). Lo valida/reparte un "
         "usuario del origen.",
+    )
+    multi_stock_solo_reabastecimiento = fields.Boolean(
+        string="Solo reabastecimiento interno",
+        help="Si está activo, este almacén participa SOLO del reabastecimiento "
+        "inter-almacén: al validar un despacho hacia el tránsito se auto-genera "
+        "la recepción en este almacén (SPEC 4.6). NO interviene la venta: una "
+        "venta desde este almacén con faltante sigue el flujo nativo de Odoo "
+        "(sin exigir el selector de cumplimiento ni generar traslado/drop-ship "
+        "automáticos). Es el caso de un almacén que vende con su propio stock "
+        "pero se abastece de otro por traslado manual.",
     )

@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 """Tests del predicado de auto-validación (sale.order._multi_stock_picking_auto_validable).
 
 Un picking es auto-validable SOLO si:

@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 """Control anti-negativo en tránsito (stock.picking._multi_stock_check_transit_disponible).
 
 La recepción de un traslado inter-sucursal (Tránsito -> Destino) NO se puede

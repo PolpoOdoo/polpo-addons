@@ -36,7 +36,7 @@ class SaleOrder(models.Model):
         "excepción crediticia autorizada. Activa el ribbon 'Bajo "
         "excepción' y evita reevaluar el riesgo al confirmar.",
     )
-    # Warning informativo en cotización
+    # Warning informativo en cotización (Caso 3)
     credit_warning_msg = fields.Html(
         compute="_compute_credit_warning_msg",
         string="Advertencia de crédito",
@@ -47,24 +47,41 @@ class SaleOrder(models.Model):
         "de la cotización.",
     )
 
+    def _credit_risk_is_contado(self):
+        """True si el pedido es contado (término de pago inmediato).
+
+        Regla única del control de crédito: sólo los documentos crédito
+        validan riesgo. Un pedido contado se confirma sin validar, en
+        coherencia con la factura contado que emitirá (). Sin término
+        de pago se considera crédito (validación conservadora)."""
+        self.ensure_one()
+        immediate = self.env.ref(
+            "account.account_payment_term_immediate", raise_if_not_found=False
+        )
+        return bool(immediate) and self.payment_term_id == immediate
+
     @api.depends(
         "partner_invoice_id",
         "amount_total",
         "currency_id",
         "state",
         "credit_override_flag",
+        "payment_term_id",
     )
     def _compute_credit_warning_msg(self):
         """
-        Warning informativo sólo en estados previos a la confirmación
-        (draft/sent). Una vez confirmado o autorizado, no se muestra.
-        Devuelve sólo el contenido (lista). El wrapper visual lo pone la vista.
+        Warning informativo sólo en pedidos crédito en estados previos a la
+        confirmación (draft/sent). Una vez confirmado o autorizado, no se
+        muestra. Devuelve sólo el contenido (lista). El wrapper visual lo pone
+        la vista.
         """
         for order in self:
             order.credit_warning_msg = False
             if order.state not in ("draft", "sent"):
                 continue
             if order.credit_override_flag:
+                continue
+            if order._credit_risk_is_contado():
                 continue
             if not order.partner_invoice_id:
                 continue
@@ -100,7 +117,7 @@ class SaleOrder(models.Model):
     def evaluate_risk_message(self, partner):
         """
         Override: ahora acumula TODAS las condiciones incumplidas,
-        no sólo la primera.
+        no sólo la primera (Caso 4).
         """
         self.ensure_one()
         extra_amount = self._get_risk_extra_amount(partner)
@@ -117,6 +134,8 @@ class SaleOrder(models.Model):
         if not self.env.context.get("bypass_risk", False):
             for order in self:
                 if order.credit_override_flag:
+                    continue
+                if order._credit_risk_is_contado():
                     continue
                 partner = order.partner_invoice_id.commercial_partner_id
                 exception_msg = order.evaluate_risk_message(partner)

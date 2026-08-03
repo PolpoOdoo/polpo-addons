@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from markupsafe import Markup, escape
 
@@ -44,8 +44,16 @@ class SaleOrder(models.Model):
     # ------------------------------------------------------------------
     def action_confirm(self):
         res = super().action_confirm()
+        # Solo aplicar multi depósito a las órdenes que efectivamente se
+        # confirmaron. Otros módulos (ej. sale_financial_risk / riesgo
+        # crediticio) interceptan action_confirm devolviendo un wizard SIN
+        # llamar a super(): la orden queda en borrador y sin movimientos de
+        # stock. Medir el faltante en ese estado da siempre "reservado 0" →
+        # UserError "faltan X" con la cantidad completa, y el rollback además
+        # se traga el wizard del interceptor.
         for order in self:
-            order._multi_stock_apply()
+            if order.state in ("sale", "done"):
+                order._multi_stock_apply()
         return res
 
     def _action_cancel(self):
@@ -85,6 +93,13 @@ class SaleOrder(models.Model):
         wh = self.warehouse_id
         if not wh or not wh.multi_stock_source_warehouse_id:
             # Almacén sin mapeo multi-depósito -> comportamiento estándar.
+            return
+        if wh.multi_stock_solo_reabastecimiento:
+            # Almacén configurado SOLO para reabastecimiento interno: el mapeo
+            # habilita la recepción auto-generada al validar el despacho (SPEC
+            # 4.6, en stock.picking) pero NO interviene la venta. La venta con
+            # faltante sigue el flujo nativo de Odoo (backorder estándar), sin
+            # exigir el selector de cumplimiento ni generar traslado/drop-ship.
             return
 
         avisos = []

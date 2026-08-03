@@ -14,14 +14,21 @@
                 <separator string="Multi depósito (reabastecimiento inter-almacén)" colspan="2" />
                 <field name="multi_stock_source_warehouse_id" />
                 <field
+                    name="multi_stock_solo_reabastecimiento"
+                    invisible="not multi_stock_source_warehouse_id"
+                />
+                <field
                     name="multi_stock_transit_location_id"
                     invisible="not multi_stock_source_warehouse_id"
                     required="multi_stock_source_warehouse_id"
                 />
+                <!-- Despacho y envío directo son del flujo de VENTA (R2/R3): no
+                     aplican en modo solo reabastecimiento (el despacho lo arma el
+                     operario manualmente con su propio tipo de operación). -->
                 <field
                     name="multi_stock_out_type_id"
-                    invisible="not multi_stock_source_warehouse_id"
-                    required="multi_stock_source_warehouse_id"
+                    invisible="not multi_stock_source_warehouse_id or multi_stock_solo_reabastecimiento"
+                    required="multi_stock_source_warehouse_id and not multi_stock_solo_reabastecimiento"
                 />
                 <field
                     name="multi_stock_in_type_id"
@@ -30,8 +37,8 @@
                 />
                 <field
                     name="multi_stock_dropship_type_id"
-                    invisible="not multi_stock_source_warehouse_id"
-                    required="multi_stock_source_warehouse_id"
+                    invisible="not multi_stock_source_warehouse_id or multi_stock_solo_reabastecimiento"
+                    required="multi_stock_source_warehouse_id and not multi_stock_solo_reabastecimiento"
                 />
             </xpath>
         </field>

@@ -1,5 +1,5 @@
 # Copyright 2026 QAPPS
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 """Tests de caracterización para polpo_credit_risk.
 
 Módulo bajo prueba: bloqueo por riesgo crediticio extendido. Extiende
@@ -40,9 +40,12 @@ que es lo que se quiere probar. Donde es determinístico, se usan ventas reales.
 """
 from datetime import timedelta
 
+from lxml import etree
+
 from odoo import fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import tagged
+from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.account.tests.common import AccountTestInvoicingCommon
 
@@ -59,6 +62,16 @@ class TestCreditRisk(AccountTestInvoicingCommon):
         # por defecto = "company"), así evitamos depender de tasas del entorno.
         cls.cliente = cls.partner_a
         cls.cliente.credit_currency = "company"
+        # AccountTestInvoicingCommon crea partner_a con property_payment_term_id
+        # = "Immediate Payment" (account/tests/common.py). Desde que el control
+        # valida SOLO documentos crédito (_credit_risk_is_contado), ese
+        # término convierte en contado a todo pedido/factura del cliente y el
+        # riesgo NO se evalúa: es la configuración de un cliente de mostrador,
+        # no la de uno con control de crédito. El fixture tiene que representar
+        # un cliente a crédito, que es el sujeto de este módulo.
+        cls.cliente.property_payment_term_id = cls.env.ref(
+            "account.account_payment_term_30days"
+        )
         cls.hoy = fields.Date.context_today(cls.cliente)
 
         # Usuario SIN permiso de autorización (vendedor): sale_financial_risk
@@ -530,6 +543,234 @@ class TestCreditRisk(AccountTestInvoicingCommon):
             inv.with_context(from_validate_move_wiz=True).action_post()
 
     # ================================================================== #
+    #  5b. CONTADO vs CRÉDITO / factura desde pedido (ajustes)     #
+    #  Regla única: sólo los documentos CRÉDITO validan riesgo.          #
+    #   - pedido contado -> confirma sin validar.                        #
+    #   - factura desde pedido -> nunca revalida (validó el pedido).     #
+    #   - factura directa contado -> no valida; crédito -> valida.       #
+    # ================================================================== #
+    def _term(self, xmlid):
+        return self.env.ref(xmlid)
+
+    def _factura_desde(self, order, price=None, extra_line=False):
+        """Factura crédito cuyas líneas de producto se vinculan al pedido.
+
+        price fija el precio unitario de la línea vinculada (qty 1) para
+        controlar la relación total factura vs total pedido. extra_line
+        agrega una línea manual SIN pedido de origen.
+        """
+        inv = self.init_invoice(
+            "out_invoice", partner=self.cliente, products=self.product_a
+        )
+        inv.invoice_payment_term_id = self._term(
+            "account.account_payment_term_30days"
+        )
+        product_lines = inv.invoice_line_ids.filtered(
+            lambda line: line.display_type == "product"
+        )
+        product_lines.sale_line_ids = [(6, 0, order.order_line.ids)]
+        if price is not None:
+            product_lines.quantity = 1
+            product_lines.price_unit = price
+        if extra_line:
+            inv.write(
+                {
+                    "invoice_line_ids": [
+                        (
+                            0,
+                            0,
+                            {
+                                "product_id": self.product_b.id,
+                                "quantity": 1,
+                                "price_unit": 50.0,
+                            },
+                        )
+                    ]
+                }
+            )
+        return inv
+
+    def _venta_autorizada(self, amount=100.0, reason="Autorizado en pedido"):
+        """Pedido confirmado bajo excepción crediticia autorizada."""
+        order = self._venta(amount=amount)
+        order.write(
+            {
+                "credit_override_flag": True,
+                "credit_override_user_id": self.user_autorizador.id,
+                "credit_override_date": fields.Datetime.now(),
+                "credit_override_reason": reason,
+            }
+        )
+        order.with_context(bypass_risk=True).action_confirm()
+        return order
+
+    def test_pedido_contado_no_valida(self):
+        # Pedido con término de pago inmediato (contado): aunque el cliente
+        # esté en excepción, se confirma sin abrir el wizard.
+        self.cliente.credit_limit = 10.0
+        order = self._venta(amount=100.0)
+        order.payment_term_id = self._term("account.account_payment_term_immediate")
+        res = order.action_confirm()
+        self.assertNotIsInstance(res, dict)  # no wizard
+        self.assertEqual(order.state, "sale")
+
+    def test_pedido_credito_valida(self):
+        # Pedido con término crédito (30 días) y cliente en excepción: valida.
+        self.cliente.credit_limit = 10.0
+        order = self._venta(amount=100.0)
+        order.payment_term_id = self._term("account.account_payment_term_30days")
+        res = order.action_confirm()
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res.get("res_model"), "polpo.credit.override.wiz")
+        self.assertEqual(order.state, "draft")
+
+    def test_pedido_contado_sin_warning(self):
+        # El banner informativo tampoco se muestra en pedidos contado.
+        self.cliente.credit_limit = 10.0
+        order = self._venta(amount=100.0)
+        order.payment_term_id = self._term("account.account_payment_term_immediate")
+        order.invalidate_recordset(["credit_warning_msg"])
+        self.assertFalse(order.credit_warning_msg)
+
+    def test_factura_contado_no_valida(self):
+        # Factura directa contado (término inmediato): postea sin validar.
+        self.cliente.credit_limit = 1.0
+        inv = self.init_invoice(
+            "out_invoice", partner=self.cliente, products=self.product_a
+        )
+        inv.invoice_payment_term_id = self._term(
+            "account.account_payment_term_immediate"
+        )
+        inv.action_post()
+        self.assertEqual(inv.state, "posted")
+
+    def test_factura_credito_directa_valida(self):
+        # Factura directa crédito (sin pedido): abre el wizard.
+        self.cliente.credit_limit = 1.0
+        inv = self.init_invoice(
+            "out_invoice", partner=self.cliente, products=self.product_a
+        )
+        inv.invoice_payment_term_id = self._term(
+            "account.account_payment_term_30days"
+        )
+        res = inv.action_post()
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res.get("res_model"), "polpo.credit.override.wiz")
+        self.assertEqual(inv.state, "draft")
+
+    def test_factura_desde_pedido_no_revalida(self):
+        # Factura que proviene íntegramente de un pedido de venta y no lo
+        # supera: no revalida aunque sea crédito y el cliente esté en
+        # excepción (el pedido ya validó al confirmarse).
+        self.cliente.credit_limit = 1.0
+        order = self._venta(amount=100.0, confirm=True)
+        inv = self._factura_desde(order, price=100.0)
+        self.assertTrue(inv._credit_risk_pure_from_sale_orders())
+        inv.action_post()
+        self.assertEqual(inv.state, "posted")
+
+    # ================================================================== #
+    #  EXENCIÓN CONDICIONADA Y HERENCIA PEDIDO -> FACTURA       #
+    # ================================================================== #
+    def test_factura_parcial_desde_pedido_no_revalida(self):
+        # Factura parcial (total menor al pedido): hereda la exención.
+        self.cliente.credit_limit = 1.0
+        order = self._venta(amount=100.0, confirm=True)
+        inv = self._factura_desde(order, price=60.0)
+        self.assertTrue(inv._credit_risk_pure_from_sale_orders())
+        inv.action_post()
+        self.assertEqual(inv.state, "posted")
+
+    def test_factura_linea_extra_revalida(self):
+        # Línea manual agregada por fuera del pedido: la factura deja de
+        # estar exenta y vuelve a evaluar riesgo (abre wizard).
+        self.cliente.credit_limit = 1.0
+        order = self._venta(amount=100.0, confirm=True)
+        inv = self._factura_desde(order, price=100.0, extra_line=True)
+        self.assertFalse(inv._credit_risk_pure_from_sale_orders())
+        res = inv.action_post()
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res.get("res_model"), "polpo.credit.override.wiz")
+        self.assertEqual(inv.state, "draft")
+
+    def test_factura_supera_total_pedido_revalida(self):
+        # Total de la factura mayor al total del pedido de origen: revalida.
+        self.cliente.credit_limit = 1.0
+        order = self._venta(amount=100.0, confirm=True)
+        inv = self._factura_desde(order, price=150.0)
+        self.assertFalse(inv._credit_risk_pure_from_sale_orders())
+        res = inv.action_post()
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res.get("res_model"), "polpo.credit.override.wiz")
+        self.assertEqual(inv.state, "draft")
+
+    def test_herencia_trazabilidad_pedido_autorizado(self):
+        # Factura pura desde pedido autorizado: postea sin wizard y hereda
+        # la trazabilidad (flag, autorizador, fecha, motivo y pedido origen).
+        self.cliente.credit_limit = 1.0
+        order = self._venta_autorizada(amount=100.0, reason="Cliente VIP")
+        inv = self._factura_desde(order, price=100.0)
+        inv.action_post()
+        self.assertEqual(inv.state, "posted")
+        self.assertTrue(inv.credit_override_flag)
+        self.assertTrue(inv.credit_override_inherited)
+        self.assertEqual(inv.credit_override_user_id, self.user_autorizador)
+        self.assertEqual(inv.credit_override_date, order.credit_override_date)
+        self.assertIn(order.name, inv.credit_override_reason)
+        self.assertIn("Cliente VIP", inv.credit_override_reason)
+        self.assertEqual(inv.credit_override_origin_order_ids, order)
+
+    def test_pedido_sin_override_no_hereda_marca(self):
+        # Factura pura desde pedido confirmado SIN excepción: postea exenta
+        # pero sin marca de excepción ni pedidos de origen registrados.
+        self.cliente.credit_limit = 1.0
+        order = self._venta(amount=100.0, confirm=True)
+        inv = self._factura_desde(order, price=100.0)
+        inv.action_post()
+        self.assertEqual(inv.state, "posted")
+        self.assertFalse(inv.credit_override_flag)
+        self.assertFalse(inv.credit_override_inherited)
+        self.assertFalse(inv.credit_override_origin_order_ids)
+
+    def test_herencia_contaminada_abre_wizard(self):
+        # Pedido autorizado pero factura con línea extra: la herencia NO
+        # exime; vuelve a pedir autorización.
+        self.cliente.credit_limit = 1.0
+        order = self._venta_autorizada(amount=100.0)
+        inv = self._factura_desde(order, price=100.0, extra_line=True)
+        res = inv.action_post()
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res.get("res_model"), "polpo.credit.override.wiz")
+        self.assertEqual(inv.state, "draft")
+        self.assertFalse(inv.credit_override_inherited)
+
+    def test_autorizacion_propia_registra_pedidos_origen(self):
+        # Factura contaminada autorizada con el wizard: mantiene la
+        # autorización propia (inherited=False) y registra igual los
+        # pedidos de origen para trazabilidad.
+        self.cliente.credit_limit = 1.0
+        order = self._venta_autorizada(amount=100.0)
+        inv = self._factura_desde(order, price=100.0, extra_line=True)
+        wiz_action = inv.action_post()
+        wiz = self.env["polpo.credit.override.wiz"].browse(
+            wiz_action["res_id"]).with_user(self.user_autorizador)
+        wiz.override_reason = "Autorizo la diferencia"
+        wiz.button_authorize()
+        self.assertEqual(inv.state, "posted")
+        self.assertTrue(inv.credit_override_flag)
+        self.assertFalse(inv.credit_override_inherited)
+        self.assertEqual(inv.credit_override_user_id, self.user_autorizador)
+        self.assertEqual(inv.credit_override_origin_order_ids, order)
+
+    def test_warning_reaparece_en_heredada_contaminada(self):
+        # El banner informativo se muestra en la factura borrador que perdió
+        # la exención por línea extra, aun viniendo de pedido autorizado.
+        self.cliente.credit_limit = 1.0
+        order = self._venta_autorizada(amount=100.0)
+        inv = self._factura_desde(order, price=100.0, extra_line=True)
+        self.assertTrue(inv.credit_warning_msg)
+
+    # ================================================================== #
     #  6. WIZARD DE OVERRIDE                                              #
     # ================================================================== #
     def test_wizard_can_authorize_vendedor_false(self):
@@ -736,3 +977,281 @@ class TestCreditRisk(AccountTestInvoicingCommon):
         # 1000 > 700 -> excepción por límite global (el rubro negativo ya no enmascara).
         self.assertEqual(partner.risk_total, 1000.0)
         self.assertTrue(partner.risk_exception)
+
+    # -------------------------------------------------------------------- #
+    # Visibilidad de la pestaña "Riesgo financiero" (fix desacople de       #
+    # account.group_account_manager). El OCA la gatea solo por admin        #
+    # contable; polpo_credit_risk la re-gatea por el grupo Usuario de       #
+    # Riesgo dejando admin contable en OR (no regresión).                   #
+    # -------------------------------------------------------------------- #
+    def _risk_page_visible_for(self, user):
+        """True si el form de partner muestra la pestaña financial_risk a `user`."""
+        view = self.env.ref("base.view_partner_form")
+        arch = (
+            self.env["res.partner"]
+            .with_user(user)
+            .get_view(view.id, "form")["arch"]
+        )
+        tree = etree.fromstring(arch)
+        return bool(tree.xpath("//page[@name='financial_risk']"))
+
+    def _make_user(self, login, group_xmlids):
+        return self.env["res.users"].create({
+            "name": login,
+            "login": login,
+            "email": "%s@example.com" % login,
+            "groups_id": [(6, 0, [
+                self.env.ref(x).id
+                for x in ["base.group_user"] + group_xmlids
+            ])],
+        })
+
+    def test_risk_page_visible_para_usuario_de_riesgo(self):
+        """Usuario de Riesgo financiero (sin admin contable) ve la pestaña."""
+        user = self._make_user(
+            "riesgo_user_test",
+            ["account_financial_risk.group_account_financial_risk_user"],
+        )
+        self.assertFalse(
+            user.has_group("account.group_account_manager"),
+            "El caso de prueba exige que NO sea admin contable.",
+        )
+        self.assertTrue(self._risk_page_visible_for(user))
+
+    def test_gerente_de_riesgo_hereda_autorizacion(self):
+        """Jerarquía Usuario < Autorizador < Gerente: el Gerente de Riesgo
+        implica al Autorizador de crédito, así que puede autorizar excepciones
+        (y no depende de que se le asigne el grupo Autorizador por separado)."""
+        gerente = self._make_user(
+            "gerente_riesgo_test",
+            ["account_financial_risk.group_account_financial_risk_manager"],
+        )
+        self.assertTrue(
+            gerente.has_group("polpo_credit_risk.group_credit_authorizer"),
+            "El Gerente de Riesgo debe implicar al Autorizador de crédito.",
+        )
+        # can_authorize del wizard (visibilidad del botón) también da True.
+        wiz = (
+            self.env["polpo.credit.override.wiz"]
+            .with_user(gerente)
+            .create({"partner_id": self.cliente.id})
+        )
+        self.assertTrue(wiz.can_authorize)
+
+    def test_usuario_de_riesgo_no_autoriza(self):
+        """El Usuario de Riesgo (solo lectura) NO hereda la autorización."""
+        user = self._make_user(
+            "riesgo_user_no_auth_test",
+            ["account_financial_risk.group_account_financial_risk_user"],
+        )
+        self.assertFalse(
+            user.has_group("polpo_credit_risk.group_credit_authorizer")
+        )
+
+    def test_risk_page_oculta_sin_grupo_de_riesgo_ni_contable(self):
+        """Usuario interno sin grupo de riesgo ni admin contable NO la ve."""
+        user = self._make_user("interno_pelado_test", [])
+        self.assertFalse(self._risk_page_visible_for(user))
+
+    def test_risk_page_visible_para_admin_contable_sin_riesgo(self):
+        """No regresión: admin contable sin grupo de riesgo sigue viéndola."""
+        user = self._make_user(
+            "contable_admin_test", ["account.group_account_manager"],
+        )
+        self.assertFalse(
+            user.has_group(
+                "account_financial_risk.group_account_financial_risk_user"
+            ),
+            "El caso de prueba exige que NO tenga grupo de riesgo.",
+        )
+        self.assertTrue(self._risk_page_visible_for(user))
+
+    # -------------------------------------------------------------------- #
+    # Visibilidad por tipo de partner. El invisible de OCA        #
+    # ("not is_company and not parent_id") tiene invertida la polaridad de  #
+    # parent_id: oculta la pestaña en personas físicas sueltas -que son su  #
+    # propio commercial_partner_id, o sea las que el motor evalúa- y la     #
+    # muestra en contactos hijos, donde parametrizar no tiene efecto.       #
+    # El invariante es: la pestaña se ve exactamente donde                  #
+    # partner == partner.commercial_partner_id.                             #
+    # -------------------------------------------------------------------- #
+    def _risk_page_invisible_expr(self):
+        """Expresión del modificador `invisible` de la pestaña en el arch.
+
+        El modificador no se resuelve en el servidor: viaja como atributo y lo
+        evalúa el cliente contra el registro. Por eso el test no puede mirar
+        si el nodo está o no en el arch (siempre está): tiene que leer la
+        expresión y evaluarla él mismo.
+        """
+        view = self.env.ref("base.view_partner_form")
+        arch = self.env["res.partner"].get_view(view.id, "form")["arch"]
+        pages = etree.fromstring(arch).xpath("//page[@name='financial_risk']")
+        self.assertEqual(
+            len(pages), 1, "La pestaña de riesgo debe estar en el form de partner."
+        )
+        return pages[0].get("invisible") or ""
+
+    def _risk_page_visible_para_partner(self, partner):
+        expr = self._risk_page_invisible_expr()
+        invisible = safe_eval(
+            expr,
+            {
+                "is_company": partner.is_company,
+                "parent_id": partner.parent_id.id or False,
+            },
+        )
+        return not invisible
+
+    def _assert_visible_donde_se_evalua(self, partner, msg):
+        """La pestaña debe verse exactamente donde el partner es su propio
+        commercial_partner_id, que es el registro sobre el que
+        _get_credit_exception_messages resuelve el riesgo."""
+        self.assertEqual(
+            self._risk_page_visible_para_partner(partner),
+            partner == partner.commercial_partner_id,
+            msg,
+        )
+
+    def test_risk_page_visible_en_persona_fisica_suelta(self):
+        """Caso del ticket: PF sin padre. Es su propio commercial_partner_id,
+        así que sin la pestaña los *_include y *_limit eran inalcanzables,
+        risk_total quedaba en 0 y la deuda acumulada nunca entraba al control."""
+        pf = self.env["res.partner"].create({
+            "name": "Persona física suelta",
+            "is_company": False,
+        })
+        self.assertEqual(pf.commercial_partner_id, pf)
+        self._assert_visible_donde_se_evalua(
+            pf, "La PF suelta es la que el control evalúa: debe ver la pestaña."
+        )
+
+    def test_risk_page_oculta_en_contacto_hijo(self):
+        """Contacto hijo de una empresa: el riesgo se evalúa en el padre,
+        parametrizar acá no tiene ningún efecto."""
+        empresa = self.env["res.partner"].create({
+            "name": "Empresa madre",
+            "is_company": True,
+        })
+        contacto = self.env["res.partner"].create({
+            "name": "Contacto hijo",
+            "is_company": False,
+            "parent_id": empresa.id,
+        })
+        self.assertEqual(contacto.commercial_partner_id, empresa)
+        self._assert_visible_donde_se_evalua(
+            contacto, "El contacto hijo no se evalúa: no debe ver la pestaña."
+        )
+
+    def test_risk_page_visible_en_empresa_suelta(self):
+        """No regresión: la empresa sin padre la seguía viendo y la sigue viendo."""
+        empresa = self.env["res.partner"].create({
+            "name": "Empresa suelta",
+            "is_company": True,
+        })
+        self._assert_visible_donde_se_evalua(
+            empresa, "La empresa suelta debe ver la pestaña."
+        )
+
+    def test_risk_page_visible_en_empresa_hija(self):
+        """No regresión: una empresa hija de otra es su PROPIO
+        commercial_partner_id (res.partner._compute_commercial_partner: la
+        cadena corta en is_company), o sea que el motor la evalúa por separado
+        y tiene que poder parametrizarse."""
+        madre = self.env["res.partner"].create({
+            "name": "Empresa madre grupo",
+            "is_company": True,
+        })
+        hija = self.env["res.partner"].create({
+            "name": "Empresa hija grupo",
+            "is_company": True,
+            "parent_id": madre.id,
+        })
+        self.assertEqual(hija.commercial_partner_id, hija)
+        self._assert_visible_donde_se_evalua(
+            hija, "La empresa hija se evalúa por separado: debe ver la pestaña."
+        )
+
+    # ================================================================== #
+    #  8. SUCURSALES (ramas) Y PERMISOS SOBRE EL LÍMITE DE CRÉDITO        #
+    #                                                                     #
+    #  credit_limit es company_dependent en el core: vive en una          #
+    #  ir.property por compañía. En una estructura con sucursales, una   #
+    #  compañía hija de la casa central y el límite se carga una sola vez.#
+    #  Sin herencia, la sucursal leía 0 y el control de riesgo total se   #
+    #  salteaba en silencio.                                    #
+    # ================================================================== #
+    def _sucursal(self):
+        """Compañía hija de la compañía de test (estructura tipo Pando)."""
+        sucursal = self.env["res.company"].create({
+            "name": "Sucursal test",
+            "parent_id": self.env.company.id,
+            "currency_id": self.env.company.currency_id.id,
+        })
+        self.env.user.company_ids |= sucursal
+        return sucursal
+
+    def test_sucursal_hereda_limite_de_la_casa_central(self):
+        # Límite cargado SOLO en la casa central: la sucursal no tiene
+        # ir.property propia, pero el límite efectivo debe ser el de la
+        # central y el riesgo debe evaluarse igual.
+        self.cliente.credit_limit = 10.0
+        sucursal = self._sucursal()
+        cliente_suc = self.cliente.with_company(sucursal)
+        cliente_suc.invalidate_recordset(["effective_credit_limit"])
+        # El campo crudo del core efectivamente da 0 en la sucursal...
+        self.assertFalse(cliente_suc.credit_limit)
+        # ...pero el límite que usa el control hereda de la central.
+        self.assertEqual(cliente_suc.effective_credit_limit, 10.0)
+        self.assertTrue(
+            cliente_suc._get_credit_exception_messages(115.0, "sale"),
+            "La sucursal debe evaluar el límite heredado de la casa central.",
+        )
+
+    def test_sucursal_con_limite_propio_no_hereda(self):
+        # Si la sucursal tiene su propio límite cargado, ese gana: la
+        # herencia es un fallback, no una imposición de la central.
+        self.cliente.credit_limit = 10.0
+        sucursal = self._sucursal()
+        cliente_suc = self.cliente.with_company(sucursal)
+        cliente_suc.credit_limit = 500.0
+        cliente_suc.invalidate_recordset(["effective_credit_limit"])
+        self.assertEqual(cliente_suc.effective_credit_limit, 500.0)
+        self.assertFalse(
+            cliente_suc._get_credit_exception_messages(115.0, "sale"),
+            "115 no supera el límite propio de 500 de la sucursal.",
+        )
+        # La casa central conserva el suyo.
+        self.cliente.invalidate_recordset(["effective_credit_limit"])
+        self.assertEqual(self.cliente.effective_credit_limit, 10.0)
+
+    def test_sucursal_hereda_tambien_el_credito_adicional(self):
+        # El crédito adicional NO es company_dependent, así que se suma
+        # sobre el límite heredado sin necesidad de recargarlo.
+        self.cliente.credit_limit = 10.0
+        self.cliente.additional_credit_amount = 200.0
+        self.cliente.additional_credit_date_from = self.hoy - timedelta(days=1)
+        self.cliente.additional_credit_date_to = self.hoy + timedelta(days=1)
+        sucursal = self._sucursal()
+        cliente_suc = self.cliente.with_company(sucursal)
+        cliente_suc.invalidate_recordset(["effective_credit_limit"])
+        self.assertEqual(cliente_suc.effective_credit_limit, 210.0)
+
+    def test_vendedor_sin_grupos_contables_igual_valida_riesgo(self):
+        # credit_limit está restringido por `groups` a los grupos de
+        # facturación, pero eso sólo limita la LECTURA por RPC/vista: el
+        # control server-side lo evalúa igual. Un vendedor sin permisos
+        # contables no puede esquivar el bloqueo.
+        self.assertFalse(
+            self.user_vendedor.has_group("account.group_account_invoice")
+        )
+        self.assertFalse(
+            self.user_vendedor.has_group("account.group_account_readonly")
+        )
+        self.cliente.credit_limit = 10.0
+        cliente_vend = self.cliente.with_user(self.user_vendedor)
+        self.assertEqual(cliente_vend.effective_credit_limit, 10.0)
+        order = self._venta(amount=100.0)
+        res = order.with_user(self.user_vendedor).action_confirm()
+        self.assertIsInstance(res, dict)
+        self.assertEqual(res.get("res_model"), "polpo.credit.override.wiz")
+        self.assertEqual(order.state, "draft")

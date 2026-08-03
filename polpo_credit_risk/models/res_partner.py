@@ -77,7 +77,8 @@ class ResPartner(models.Model):
         cheques en cartera.
 
         Requiere que account.move.line tenga el campo 'vencimiento'
-        (proporcionado por qapps_cheque_info). Si no existe, devuelve dominio vacío.
+        (proporcionado por qapps_cheque_info). Si no existe, devuelve dominio
+        vacío.
         """
         aml_fields = self.env["account.move.line"]._fields
         if "vencimiento" not in aml_fields or "check_deposit_id" not in aml_fields:
@@ -198,6 +199,38 @@ class ResPartner(models.Model):
                 }
             }
 
+    def _credit_limit_de_la_rama(self):
+        """``credit_limit`` de la compañía activa, heredado de la casa central.
+
+        ``res.partner.credit_limit`` es ``company_dependent`` en el core
+        (``account/models/partner.py``), o sea que vive en una ``ir.property``
+        por compañía. En una estructura con ramas —una sucursal hija de la casa
+        central— el límite se carga una sola vez,
+        desde la central, y la sucursal lo lee como 0.
+
+        Ese 0 no da error: hace que la condición de riesgo total contra el
+        límite de crédito (ver ``_get_credit_exception_messages``) se saltee en
+        silencio, dejando los documentos de la sucursal SIN control de límite
+        de crédito. Los demás rubros (pedidos, facturas abiertas, cheques
+        diferidos, deuda vencida) no son ``company_dependent`` y sí se aplican,
+        con lo cual el agujero pasa desapercibido.
+
+        Se resuelve recorriendo la cadena de compañías desde la propia hacia la
+        raíz y devolviendo el primer límite cargado. Un límite propio de la
+        sucursal sigue ganando sobre el de la central: sólo se hereda cuando la
+        sucursal no tiene valor.
+        """
+        self.ensure_one()
+        # sudo() sobre la compañía: parent_ids es configuración, y un usuario
+        # restringido a la sucursal no siempre puede leer la casa central
+        # (AccessError por cids).
+        cadena = self.env.company.sudo().parent_ids
+        for company in reversed(cadena):
+            limite = self.with_company(company).credit_limit
+            if limite:
+                return limite
+        return self.credit_limit
+
     @api.depends(
         "credit_limit",
         "additional_credit_amount",
@@ -216,10 +249,9 @@ class ResPartner(models.Model):
                 <= partner.additional_credit_date_to
             )
             partner.additional_credit_is_active = is_active
+            base = partner._credit_limit_de_la_rama()
             partner.effective_credit_limit = (
-                partner.credit_limit + partner.additional_credit_amount
-                if is_active
-                else partner.credit_limit
+                base + partner.additional_credit_amount if is_active else base
             )
 
     @api.depends(

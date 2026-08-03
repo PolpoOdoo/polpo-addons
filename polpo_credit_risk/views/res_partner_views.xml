@@ -21,6 +21,42 @@
         <field name="inherit_id" ref="account_financial_risk.res_partner_view_risk" />
         <field name="priority" eval="99" />
         <field name="arch" type="xml">
+            <!--
+                La pestaña de Riesgo financiero no debe exigir Administrador de
+                Contabilidad. El OCA account_financial_risk la gatea únicamente por
+                account.group_account_manager, así que un Usuario/Gerente de Riesgo
+                que no sea admin contable ni siquiera la ve. Se pasa a gatear por el
+                grupo Usuario de Riesgo, dejando account.group_account_manager en OR
+                para no regresionar a los usuarios contables que ya la veían.
+                Edición sigue dependiendo de risk_allow_edit (grupo Gerente de Riesgo).
+            -->
+            <xpath expr="//page[@name='financial_risk']" position="attributes">
+                <attribute
+                    name="groups"
+                >account_financial_risk.group_account_financial_risk_user,account.group_account_manager</attribute>
+                <!--
+                    El invisible de OCA ("not is_company and not parent_id")
+                    tiene invertida la polaridad de parent_id respecto del motor de
+                    riesgo. El riesgo se evalúa siempre sobre commercial_partner_id
+                    (ver _get_credit_exception_messages), y en el core un partner es
+                    su propio commercial_partner_id cuando "is_company or not
+                    parent_id". Es decir: la pestaña debe verse exactamente donde
+                    ese predicado se cumple, e invisible en su negación,
+                    "not is_company and parent_id" (contacto hijo de una empresa).
+                    OCA hace lo contrario: la oculta en personas físicas sueltas
+                    -que son su propio commercial_partner_id y por lo tanto las que
+                    el control evalúa- y la muestra en contactos hijos, donde
+                    parametrizar no tiene ningún efecto.
+                    Consecuencia del bug: en personas físicas los *_include y
+                    *_limit quedaban inalcanzables desde la UI, con lo cual las
+                    condiciones 1 a 4 -guardadas por esos campos- se salteaban en
+                    silencio y risk_total quedaba en 0, así que solo se bloqueaba el
+                    documento que por sí solo superara el límite de crédito: la
+                    deuda acumulada nunca entraba al control.
+                -->
+                <attribute name="invisible">not is_company and parent_id</attribute>
+            </xpath>
+
             <!-- Ribbon de vigencia del crédito adicional (esquina sup. der.) -->
             <xpath expr="//sheet" position="inside">
                 <widget
@@ -28,7 +64,7 @@
                     title="Crédito adicional vigente"
                     bg_color="text-bg-success"
                     invisible="not additional_credit_is_active"
-                    groups="account.group_account_manager"
+                    groups="account_financial_risk.group_account_financial_risk_user,account.group_account_manager"
                 />
             </xpath>
 

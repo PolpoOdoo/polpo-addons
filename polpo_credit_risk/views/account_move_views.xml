@@ -11,7 +11,13 @@
                     name="web_ribbon"
                     title="Bajo excepción"
                     bg_color="text-bg-warning"
-                    invisible="not credit_override_flag"
+                    invisible="not credit_override_flag or credit_override_inherited"
+                />
+                <widget
+                    name="web_ribbon"
+                    title="Bajo excepción (heredada)"
+                    bg_color="text-bg-warning"
+                    invisible="not credit_override_inherited"
                 />
             </xpath>
 
@@ -26,11 +32,19 @@
             </xpath>
 
             <xpath expr="//page[@name='other_info']" position="inside">
-                <group string="Excepción crediticia" invisible="not credit_override_flag">
+                <group
+                    string="Excepción crediticia"
+                    invisible="not credit_override_flag and not credit_override_origin_order_ids">
                     <field name="credit_override_flag" invisible="1" />
-                    <field name="credit_override_user_id" />
-                    <field name="credit_override_date" />
-                    <field name="credit_override_reason" />
+                    <field name="credit_override_inherited" invisible="1" />
+                    <field name="credit_override_user_id" invisible="not credit_override_flag" />
+                    <field name="credit_override_date" invisible="not credit_override_flag" />
+                    <field name="credit_override_reason" invisible="not credit_override_flag" />
+                    <field
+                        name="credit_override_origin_order_ids"
+                        widget="many2many_tags"
+                        invisible="not credit_override_origin_order_ids"
+                    />
                 </group>
             </xpath>
         </field>

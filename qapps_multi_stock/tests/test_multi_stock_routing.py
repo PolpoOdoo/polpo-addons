@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 """Tests del motor de ruteo de stock (sale.order._multi_stock_apply y compañeros).
 
 Cubre, sobre el FALTANTE real (medido por lo reservado, no por el campo):

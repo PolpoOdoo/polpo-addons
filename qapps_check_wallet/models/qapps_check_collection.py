@@ -31,10 +31,20 @@ class QappsCheckCollection(models.Model):
         copy=False,
         help="Fecha en que se entregan los cheques al banco; es la fecha del asiento de envío.",
     )
+    boleta_ref = fields.Char(
+        string="Referencia de boleta",
+        tracking=True,
+        copy=False,
+        help="Número de la boleta bancaria presentada. Una misma boleta puede "
+        "agrupar cheques de la casa central y de la sucursal: se registran dos "
+        "envíos (uno por compañía) con la misma referencia para relacionarlos. "
+        "Editable también con el envío validado, porque el número de boleta "
+        "puede conocerse después de enviar los cheques.",
+    )
     journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Diario de cheques",
-        domain="[('company_id', '=', company_id), ('is_check_journal', '=', True)]",
+        domain="[('company_id', 'parent_of', company_id), ('is_check_journal', '=', True)]",
         required=True,
         check_company=True,
         tracking=True,
@@ -43,7 +53,7 @@ class QappsCheckCollection(models.Model):
     bank_journal_id = fields.Many2one(
         comodel_name="account.journal",
         string="Banco destino",
-        domain="[('company_id', '=', company_id), ('type', '=', 'bank'),"
+        domain="[('company_id', 'parent_of', company_id), ('type', '=', 'bank'),"
         " ('bank_account_id', '!=', False)]",
         required=True,
         check_company=True,
@@ -163,13 +173,7 @@ class QappsCheckCollection(models.Model):
     def _compute_collection_accounts(self):
         mapping_model = self.env["qapps.check.collection.account"]
         for rec in self:
-            mapping = mapping_model.search(
-                [
-                    ("company_id", "=", rec.company_id.id),
-                    ("currency_id", "=", rec.currency_id.id),
-                ],
-                limit=1,
-            )
+            mapping = mapping_model._find_mapping(rec.company_id, rec.currency_id)
             rec.collection_account_id = mapping.collection_account_id
             rec.rejected_account_id = mapping.rejected_account_id
 

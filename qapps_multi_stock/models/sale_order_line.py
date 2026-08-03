@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 from odoo import api, fields, models
 from odoo.tools import float_is_zero
@@ -20,7 +20,8 @@ class SaleOrderLine(models.Model):
 
     El selector ``multi_stock_mode`` SOLO aplica/es visible cuando la línea tiene
     faltante local Y el almacén de la venta está habilitado para multi depósito
-    (tiene ``multi_stock_source_warehouse_id``). La cantidad disponible local se
+    (tiene ``multi_stock_source_warehouse_id`` y NO está en modo
+    ``multi_stock_solo_reabastecimiento``). La cantidad disponible local se
     entrega siempre por R1 (inmediata), salvo override ``multi_stock_todo_origen``.
     """
 
@@ -62,6 +63,7 @@ class SaleOrderLine(models.Model):
         "product_uom_qty",
         "order_id.warehouse_id",
         "order_id.warehouse_id.multi_stock_source_warehouse_id",
+        "order_id.warehouse_id.multi_stock_solo_reabastecimiento",
         "order_id.state",
     )
     def _compute_multi_stock_disponibilidad(self):
@@ -94,9 +96,13 @@ class SaleOrderLine(models.Model):
                     free = free_product_uom
                 faltante = max(line.product_uom_qty - free, 0.0)
                 rounding = uom.rounding if uom else 0.01
-                tiene_faltante = bool(
-                    wh.multi_stock_source_warehouse_id
-                ) and not float_is_zero(faltante, precision_rounding=rounding)
+                # En modo "solo reabastecimiento" el almacén no interviene la
+                # venta: no hay selector de cumplimiento aunque haya faltante.
+                tiene_faltante = (
+                    bool(wh.multi_stock_source_warehouse_id)
+                    and not wh.multi_stock_solo_reabastecimiento
+                    and not float_is_zero(faltante, precision_rounding=rounding)
+                )
             line.multi_stock_free_local = free
             line.multi_stock_faltante = faltante
             line.multi_stock_tiene_faltante = tiene_faltante

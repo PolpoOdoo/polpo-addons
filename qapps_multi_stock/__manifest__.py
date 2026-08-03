@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 {
     "name": "Multi Depósito (venta inter-sucursal) - QApps",
@@ -7,7 +7,7 @@
     "interno con tránsito y doble validación, o envío directo "
     "(drop-ship) desde el depósito central al cliente.",
     "sequence": 160,
-    "version": "17.0.1.2.0",
+    "version": "17.0.1.3.0",
     "category": "Inventory",
     "license": 'LGPL-3',
     "author": "Polpo ERP",

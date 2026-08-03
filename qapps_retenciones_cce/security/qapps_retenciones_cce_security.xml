@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="qapps_retenciones_cce_multicompany" model="ir.rule">
+        <field name="name">qapps.retenciones.cce multi-company</field>
+        <field name="model_id" ref="model_qapps_retenciones_cce" />
+        <field name="global" eval="True" />
+        <field
+            name="domain_force"
+        >['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

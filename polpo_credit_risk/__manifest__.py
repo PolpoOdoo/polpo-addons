@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 {
     "name": "Control de Crédito Extendido - QApps",
@@ -61,9 +61,9 @@ Configuración:
   bancaria, en la cuenta de pagos del método de pago entrante "manual".
 """,
     "sequence": 150,
-    "version": "17.0.1.3.7",
+    "version": "17.0.1.5.2",
     "category": "Accounting",
-    "license": 'LGPL-3',
+    "license": 'AGPL-3',
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",

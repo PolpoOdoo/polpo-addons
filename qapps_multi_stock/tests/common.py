@@ -1,5 +1,5 @@
 # Copyright 2026 QEI SRL (Polpo)
-# License OPL-1 (Odoo Proprietary License v1.0).
+# License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 """Base común para los tests de qapps_multi_stock.
 
 Arma dos almacenes en la MISMA compañía (DESTINO = almacén de la venta,
