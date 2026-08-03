@@ -1,2 +1,3 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_qapps_retenciones_cce_full,qapps.retenciones.cce,model_qapps_retenciones_cce,,1,1,1,1
+access_qapps_retenciones_cce_user,qapps.retenciones.cce user,model_qapps_retenciones_cce,account.group_account_user,1,1,1,0
+access_qapps_retenciones_cce_manager,qapps.retenciones.cce manager,model_qapps_retenciones_cce,account.group_account_manager,1,1,1,1
