@@ -1,5 +1,5 @@
 {
-    "name": "Cheques en Cartera - QApps",
+    "name": "Cheques en Cartera - Polpo",
     "summary": "Cartera de cheques recibidos: consulta unificada, depósito, endoso a proveedores y envío al cobro",
     "description": """
         Qué hace: agrega la vista de consulta "Cheques en cartera" (modelo SQL
@@ -20,7 +20,7 @@
         account_check_deposit (OCA) y qapps_cheque_info.
     """,
     "sequence": 150,
-    "version": "17.0.1.3.12",
+    "version": "17.0.1.3.13",
     "category": "Accounting",
     "license": 'AGPL-3',
     "author": "Polpo ERP",

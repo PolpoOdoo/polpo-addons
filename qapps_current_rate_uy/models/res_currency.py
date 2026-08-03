@@ -131,8 +131,8 @@ class ResCurrency(models.Model):
             {
                 "subject": subject,
                 "body_html": body_html,
-                "email_to": currency_email_notif or "soporte@qapps.io",
-                "email_from": self.env.company.email_formatted or "soporte@qapps.io",
+                "email_to": currency_email_notif or "info@polpo.uy",
+                "email_from": self.env.company.email_formatted or "info@polpo.uy",
             }
         )
         mail_obj.send()

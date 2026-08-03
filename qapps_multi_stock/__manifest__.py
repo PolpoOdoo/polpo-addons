@@ -2,12 +2,12 @@
 # License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl).
 
 {
-    "name": "Multi Depósito (venta inter-sucursal) - QApps",
+    "name": "Multi Depósito: venta inter sucursal - Polpo",
     "summary": "Venta en sucursal de stock ubicado en otro depósito: traslado "
     "interno con tránsito y doble validación, o envío directo "
     "(drop-ship) desde el depósito central al cliente.",
     "sequence": 160,
-    "version": "17.0.1.3.0",
+    "version": "17.0.1.3.1",
     "category": "Inventory",
     "license": 'LGPL-3',
     "author": "Polpo ERP",

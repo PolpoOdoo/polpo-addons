@@ -1,5 +1,5 @@
 {
-    "name": "Autocomplete Google Uruguay - QApps",
+    "name": "Autocompletado de Direcciones Uruguay - Polpo",
     "summary": "Sesga el autocompletado de direcciones de la tienda hacia Uruguay",
     "description": """
         Qué hace: override del controller de website_sale_autocomplete. Cuando la
@@ -19,7 +19,7 @@
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Website/eCommerce",
-    "version": "17.0.1.0.0",
+    "version": "17.0.1.0.1",
     "depends": ["website_sale_autocomplete"],
     "license": 'LGPL-3',
     "installable": True,

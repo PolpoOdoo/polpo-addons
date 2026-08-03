@@ -1,11 +1,34 @@
 <section class="oe_container">
-  <div class="oe_row oe_spaced" style="max-width:820px;margin:0 auto;padding:24px;font-family:Arial,Helvetica,sans-serif">
-    <div style="border-left:6px solid #12A6B8;padding-left:16px;margin-bottom:8px">
-      <h1 style="color:#0B4A5C;margin:0 0 6px;font-size:30px">Cheque Info en Pagos y Apuntes</h1>
-      <p style="color:#555;font-size:16px;margin:0">Número de cheque, vencimiento y observaciones en el pago, propagados a los apuntes contables</p>
+  <div class="oe_row oe_spaced" style="max-width:840px;margin:0 auto;padding:24px;font-family:Poppins,Arial,Helvetica,sans-serif">
+    <div style="border-left:6px solid #0FA656;padding-left:18px;margin-bottom:18px">
+      <h1 style="color:#1A252C;margin:0 0 6px;font-size:29px">Datos del cheque en cada pago y en cada apunte contable</h1>
+      <p style="color:#555;font-size:17px;margin:0;line-height:1.45">Número de cheque, vencimiento y observaciones en el registro de pago, propagados automáticamente a las líneas de asiento para reportes y consultas.</p>
     </div>
-    <h3 style="color:#0B4A5C;margin:18px 0 4px">Qué hace</h3><p style="margin:0;color:#333;line-height:1.5"> Agrega los campos &quot;Número de cheque&quot;, &quot;Vencimiento&quot; y &quot;Observaciones&quot; al registro de pago (account.payment.register), al pago (account.payment) y a la línea de asiento (account.move.line). Al confirmar el pago, propaga esos datos del pago a las líneas de asiento conciliadas, de modo que el vencimiento y el número de cheque quedan disponibles a nivel de apunte contable para reportes y consultas.</p><h3 style="color:#0B4A5C;margin:18px 0 4px">Para qué sirve</h3><p style="margin:0;color:#333;line-height:1.5"> Dar trazabilidad de cheques (sobre todo diferidos) desde el pago hasta el asiento, base para carteras de cheques, control de crédito y reportes de vencimientos.</p><h3 style="color:#0B4A5C;margin:18px 0 4px">Alcance</h3><p style="margin:0;color:#333;line-height:1.5"> Genérico multi-cliente. Depende solo de account. No asume ningún diario ni proveedor específico.</p><h3 style="color:#0B4A5C;margin:18px 0 4px">Configuración</h3><p style="margin:0;color:#333;line-height:1.5"> Sin configuración propia. Los campos aparecen en el asistente de registro de pago y en el formulario de pago.</p>
-    <hr style="border:none;border-top:1px solid #eee;margin:24px 0"/>
-    <p style="color:#888;font-size:13px">Desarrollado por <a href="https://polpo.uy" style="color:#12A6B8;text-decoration:none">Polpo ERP</a> — soluciones Odoo para Uruguay. Soporte best-effort vía polpo.uy.</p>
+    <p style="margin:0 0 20px;color:#333;line-height:1.6;font-size:15px">Cuando se cobra o se paga con cheques, Odoo estándar no guarda los datos del cheque en ningún lugar consultable. Este módulo agrega los campos <b>Número de cheque, Vencimiento y Observaciones</b> al registrar el pago y los propaga a los apuntes contables, de modo que cualquier reporte contable puede mostrar y filtrar por esos datos.</p>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Qué hace</h2><ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li>Agrega los tres campos al asistente de registro de pago, al pago y a la línea de asiento.</li>
+<li>Al confirmar el pago, <b>propaga los datos a las líneas de asiento conciliadas</b>: el vencimiento y el número de cheque quedan disponibles a nivel de apunte contable.</li>
+<li>Base de la trazabilidad de cheques diferidos: sobre estos campos se apoyan nuestros módulos Cheques en Cartera y Control de Crédito Extendido.</li>
+<li>Sin configuración: se instala y los campos aparecen.</li>
+</ul>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Para quién es</h2>
+<ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li>Empresas que cobran o pagan con <b>cheques diferidos</b> y necesitan ver vencimientos en reportes contables.</li>
+<li>Como <b>base técnica</b> para la cartera de cheques y el control de crédito publicados en este mismo repositorio.</li>
+</ul>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Preguntas frecuentes</h2>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Necesita configuración?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">No. Se instala y los campos aparecen en el asistente de registro de pago y en el formulario de pago.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿De qué depende?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Solo del módulo de Contabilidad estándar de Odoo. No asume ningún diario ni proveedor específico.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Se usa solo o con otros módulos?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Funciona solo. También es la base de Cheques en Cartera y de Control de Crédito Extendido, publicados en este mismo repositorio.</p>
+<hr style="border:none;border-top:1px solid #DDE4E7;margin:26px 0"/>
+<h2 style="color:#1A252C;font-size:21px;margin:0 0 10px">Check Info on Payments and Journal Items (English)</h2>
+<p style="margin:0 0 8px;color:#333;line-height:1.6;font-size:15px">Adds <b>check number, due date and notes</b> to Odoo payments and propagates them to the reconciled journal items, so accounting reports can show and filter by check data. Foundation for our check wallet and extended credit control modules. No configuration needed; depends only on standard Accounting.</p>
+<div style="background:#E9F7F0;border:1px solid #DDE4E7;border-radius:12px;padding:20px 22px;margin:28px 0 0">
+      <h2 style="color:#1A252C;font-size:19px;margin:0 0 8px">¿Le interesa este módulo?</h2>
+      <p style="margin:0;color:#333;line-height:1.6;font-size:15px">Si lo necesita en otra versión de Odoo, encontró un error o quiere saber más sobre nosotros y nuestras implementaciones, escríbanos a <a href="mailto:info@polpo.uy" style="color:#0FA656;text-decoration:none"><b>info@polpo.uy</b></a>, déjenos su consulta en el <a href="https://polpo.uy/contactus?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_cheque_info" style="color:#0FA656;text-decoration:none"><b>formulario de contacto</b></a> o conozca lo que hacemos en <a href="https://polpo.uy/?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_cheque_info" style="color:#0FA656;text-decoration:none"><b>polpo.uy</b></a>.</p>
+      <p style="margin:10px 0 0;color:#4a5a52;line-height:1.55;font-size:13px"><i>Need this module for another Odoo version, found a bug or want to know more about us? Write to info@polpo.uy or use our contact form.</i></p>
+    </div>
+<hr style="border:none;border-top:1px solid #DDE4E7;margin:26px 0"/>
+    <p style="color:#888;font-size:13px;margin:0">Desarrollado por <a href="https://polpo.uy" style="color:#0FA656;text-decoration:none">Polpo ERP</a>, implementadores de Odoo desde Uruguay para toda la región. Soporte: info@polpo.uy</p>
   </div>
 </section>
