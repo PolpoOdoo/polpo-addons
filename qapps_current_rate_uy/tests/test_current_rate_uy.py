@@ -312,6 +312,19 @@ class TestCurrentRateUy(TransactionCase):
         self.assertIn('tasa de cambio del día', nuevo.subject)
         self.assertEqual(nuevo.email_to, 'test@qapps.io')
 
+    def test_send_email_missing_rate_default_polpo(self):
+        """Sin parámetro cargado, el aviso cae al mail default (info@polpo.uy)."""
+        self.IrConfig.set_param('qapps.currency_email_notif', False)
+        Mail = self.env['mail.mail']
+        antes = Mail.search([], order='id desc', limit=1)
+        antes_id = antes.id if antes else 0
+
+        self.Currency.send_email_missing_rate(False)
+
+        nuevo = Mail.search([('id', '>', antes_id)], order='id desc', limit=1)
+        self.assertTrue(nuevo)
+        self.assertEqual(nuevo.email_to, 'info@polpo.uy')
+
     def test_send_email_missing_rate_con_moneda(self):
         """send_email_missing_rate('USD') incluye el nombre de la moneda."""
         Mail = self.env['mail.mail']

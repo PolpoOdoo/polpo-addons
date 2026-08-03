@@ -1,11 +1,39 @@
 <section class="oe_container">
-  <div class="oe_row oe_spaced" style="max-width:820px;margin:0 auto;padding:24px;font-family:Arial,Helvetica,sans-serif">
-    <div style="border-left:6px solid #12A6B8;padding-left:16px;margin-bottom:8px">
-      <h1 style="color:#0F5C6B;margin:0 0 6px;font-size:30px">Retenciones / CCE - QApps</h1>
-      <p style="color:#555;font-size:16px;margin:0">Retenciones en garantía y Certificados de Crédito fiscal (CCE) sobre facturas de cliente</p>
+  <div class="oe_row oe_spaced" style="max-width:840px;margin:0 auto;padding:24px;font-family:Poppins,Arial,Helvetica,sans-serif">
+    <div style="border-left:6px solid #0FA656;padding-left:18px;margin-bottom:18px">
+      <h1 style="color:#1A252C;margin:0 0 6px;font-size:29px">Retenciones en garantía y certificados de crédito (CCE), sin asientos manuales</h1>
+      <p style="color:#555;font-size:17px;margin:0;line-height:1.45">El cliente retiene un porcentaje en garantía o paga parte con certificados de crédito: el módulo registra, contabiliza y regulariza cada retención hasta el cobro.</p>
     </div>
-    <h3 style="color:#0F5C6B;margin:18px 0 4px">Qué hace</h3><p style="margin:0;color:#333;line-height:1.5"> Agrega a las facturas de cliente el modelo qapps.retenciones.cce, con dos tipos de aplicación: &quot;Retención en garantía&quot; (porcentaje sobre el total o la base imponible de la factura, opcionalmente limitado a líneas específicas) y &quot;Certificado de crédito fiscal&quot; (por el monto de IVA de la factura). Al postear la factura genera automáticamente un asiento de reclasificación que mueve el monto retenido de la cuenta a cobrar a la cuenta configurada por tipo, y lo reconcilia contra el receivable (con soporte multimoneda: amount_currency al tipo de cambio de la factura y reparto del centavo de redondeo entre retenciones). La regularización se hace desde el pago: campos &quot;Tipo de aplicación&quot; y &quot;Aplicación a regularizar&quot; en account.payment redirigen la cuenta destino a la cuenta de retenciones/CCE y, al confirmar, marcan la retención como Cobrada con fecha y pago asociado. Sincroniza la referencia del asiento cuando qapps_efactura renombra la factura con el número de CFE.</p><h3 style="color:#0F5C6B;margin:18px 0 4px">Para qué sirve</h3><p style="margin:0;color:#333;line-height:1.5"> Rubros donde el cliente retiene parte de la factura: construcción/obras (retención en garantía que se cobra al finalizar la obra) y organismos que pagan el IVA con certificados de crédito fiscal. Mantiene el saldo exigible de la factura correcto y da seguimiento a lo retenido hasta su cobro, con imputación analítica por Proyecto/Obra.</p><h3 style="color:#0F5C6B;margin:18px 0 4px">Alcance</h3><p style="margin:0;color:#333;line-height:1.5"> Genérico multi-cliente (depende solo de account). Contempla facturación en moneda extranjera (USD).</p><h3 style="color:#0F5C6B;margin:18px 0 4px">Configuración e integraciones</h3><p style="margin:0;color:#333;line-height:1.5"> En Ajustes de Contabilidad: &quot;Cuenta Retenciones en garantía&quot; y &quot;Cuenta certificados de crédito fiscal&quot; por compañía. Compatible con qapps_efactura (no lo requiere).</p>
-    <hr style="border:none;border-top:1px solid #eee;margin:24px 0"/>
-    <p style="color:#888;font-size:13px">Desarrollado por <a href="https://polpo.uy" style="color:#12A6B8;text-decoration:none">Polpo ERP</a> — soluciones Odoo para Uruguay. Soporte best-effort vía polpo.uy.</p>
+    <p style="margin:0 0 20px;color:#333;line-height:1.6;font-size:15px">En la construcción y en la venta al Estado es práctica corriente: el cliente <b>retiene un porcentaje de la factura en garantía</b>, o cancela parte con <b>certificados de crédito (CCE)</b>. En Odoo estándar eso significa asientos manuales, cuentas a cobrar que no cierran y retenciones que nadie sigue. Este módulo lo resuelve dentro de la factura.</p>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Qué hace</h2><ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li><b>Retención en garantía</b> por porcentaje sobre el total o sobre la base imponible de la factura, con opción de limitarla a líneas específicas.</li>
+<li><b>Certificado de crédito (CCE)</b> por el monto de IVA de la factura.</li>
+<li><b>Asiento automático al confirmar la factura:</b> mueve el monto retenido de la cuenta a cobrar a la cuenta configurada para cada tipo, ya conciliado.</li>
+<li><b>Multimoneda:</b> importes en la moneda de la factura a su tipo de cambio, con reparto correcto del redondeo.</li>
+<li><b>Regularización desde el pago:</b> al cobrar la retención, se marca como Cobrada con fecha y pago asociado.</li>
+</ul>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Para quién es</h2>
+<ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li><b>Constructoras y empresas de ingeniería</b> con retenciones en garantía en cada certificado de obra.</li>
+<li><b>Proveedores del Estado</b> que cobran parte de sus facturas con certificados de crédito.</li>
+<li>Administraciones que hoy siguen las retenciones <b>en una planilla</b> y las regularizan a mano.</li>
+</ul>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Cómo funciona</h2><ol style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li>Cargue en la factura la retención en garantía (porcentaje) o el certificado de crédito (por el IVA).</li>
+<li>Al confirmar la factura, el sistema genera el asiento de reclasificación y lo deja conciliado.</li>
+<li>El saldo a cobrar de la factura ya refleja lo que el cliente realmente va a pagar.</li>
+<li>Cuando la retención se cobra, se regulariza desde el propio pago y queda marcada como Cobrada, con fecha y pago asociado.</li>
+</ol>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Preguntas frecuentes</h2>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Funciona con facturas en dólares?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Sí: los importes se registran en la moneda de la factura a su tipo de cambio, con el redondeo repartido correctamente entre las retenciones.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Qué cuentas usa?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Las que usted configure para cada tipo de aplicación: una para retenciones en garantía y otra para certificados de crédito.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Cuándo se regulariza la retención?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Al momento del cobro: desde el pago se indica qué retención se está regularizando y queda marcada como Cobrada.</p>
+<div style="background:#E9F7F0;border:1px solid #DDE4E7;border-radius:12px;padding:20px 22px;margin:28px 0 0">
+      <h2 style="color:#1A252C;font-size:19px;margin:0 0 8px">¿Le interesa este módulo?</h2>
+      <p style="margin:0;color:#333;line-height:1.6;font-size:15px">Si lo necesita en otra versión de Odoo, encontró un error o quiere saber más sobre nosotros y nuestras implementaciones, escríbanos a <a href="mailto:info@polpo.uy" style="color:#0FA656;text-decoration:none"><b>info@polpo.uy</b></a>, déjenos su consulta en el <a href="https://polpo.uy/contactus?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_retenciones_cce" style="color:#0FA656;text-decoration:none"><b>formulario de contacto</b></a> o conozca lo que hacemos en <a href="https://polpo.uy/?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_retenciones_cce" style="color:#0FA656;text-decoration:none"><b>polpo.uy</b></a>.</p>
+      
+    </div>
+<hr style="border:none;border-top:1px solid #DDE4E7;margin:26px 0"/>
+    <p style="color:#888;font-size:13px;margin:0">Desarrollado por <a href="https://polpo.uy" style="color:#0FA656;text-decoration:none">Polpo ERP</a>, implementadores de Odoo desde Uruguay para toda la región. Soporte: info@polpo.uy</p>
   </div>
 </section>

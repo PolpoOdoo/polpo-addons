@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 {
-    'name': "QApps - Tasa de Cambio Uruguay - BCU",
+    'name': "Cotizaciones BCU Uruguay - Polpo",
     'summary': "Importa automáticamente del BCU la cotización diaria de todas las monedas activas (USD, EUR, UYI)",
     'description': """
         Qué hace: una tarea programada (cron) diaria consulta los web services SOAP
@@ -17,7 +17,7 @@
 
         Configuración (Ajustes): activar/desactivar el cron, URLs de los WSDL
         del BCU y email de notificación si el BCU no devuelve cotización
-        (default soporte@qapps.io). Parámetros en ir.config_parameter
+        (default info@polpo.uy). Parámetros en ir.config_parameter
         (qapps.currency_*).
     """,
     'sequence': 150,
@@ -25,7 +25,7 @@
     'website': 'https://polpo.uy',
     'support': 'info@polpo.uy',
     'category': 'Accounting',
-    'version': '18.0.1.0.3',
+    'version': '18.0.1.0.4',
     'depends': ['base'],
     'license': 'LGPL-3',
     'data': [

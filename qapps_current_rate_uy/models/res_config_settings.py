@@ -40,7 +40,7 @@ class ResConfigSettings(models.TransientModel):
                                                                      default=WSDL_FECHA_CIERRE),
             'currency_servicio_cotizacion': config_param.get_param(CURRENCY_SERVICIO_COTIZACION,
                                                                    default=WSDL_COTIZACION),
-            'currency_email_notif': config_param.get_param(CURRENCY_EMAIL_NOTIF, default='soporte@qapps.io')
+            'currency_email_notif': config_param.get_param(CURRENCY_EMAIL_NOTIF, default='info@polpo.uy')
         })
         return res
 
