@@ -34,7 +34,7 @@ crédito fiscal" por compañía. Compatible con qapps_efactura (no lo requiere).
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Accounting",
-    "version": "18.0.1.0.2",
+    "version": "18.0.1.0.3",
     "license": 'LGPL-3',
     "depends": [
         "account",
@@ -46,5 +46,6 @@ crédito fiscal" por compañía. Compatible con qapps_efactura (no lo requiere).
         "views/account_payment_views.xml",
         "views/res_config_settings_views.xml",
     ],
+    "images": ["static/description/banner.png"],
     "installable": True,
 }
