@@ -25,8 +25,8 @@
     'website': 'https://polpo.uy',
     'support': 'info@polpo.uy',
     'category': 'Accounting',
-    'version': '18.0.1.0.5',
-    'depends': ['base'],
+    'version': '18.0.1.0.6',
+    'depends': ['base', 'mail'],
     'license': 'LGPL-3',
     'data': [
         'data/ir_cron.xml',
