@@ -26,7 +26,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "category": "Inventory",
-    "version": '16.0.1.0.1',
+    "version": '16.0.1.0.2',
     "license": 'LGPL-3',
     "depends": ["stock"],
     "data": [
@@ -34,6 +34,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
         "views/qapps_stock_picking_views.xml",
         "wizard/qapps_barcode_reader_views.xml",
     ],
+    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
 }

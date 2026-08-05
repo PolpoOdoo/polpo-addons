@@ -23,12 +23,13 @@ Sin configuración propia.
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "category": "Localization",
-    "version": "16.0.1.0.1",
+    "version": "16.0.1.0.2",
     "license": "LGPL-3",
     "depends": ["base", "contacts"],
     "data": [
         "views/res_partner_views.xml",
     ],
+    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
 }
