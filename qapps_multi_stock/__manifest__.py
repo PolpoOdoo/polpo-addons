@@ -7,7 +7,7 @@
     "interno con tránsito y doble validación, o envío directo "
     "(drop-ship) desde el depósito central al cliente.",
     "sequence": 160,
-    "version": "17.0.1.3.1",
+    "version": "17.0.1.3.2",
     "category": "Inventory",
     "license": 'LGPL-3',
     "author": "Polpo ERP",
@@ -22,5 +22,6 @@
         "views/sale_order_views.xml",
         "views/stock_picking_views.xml",
     ],
+    "images": ["static/description/banner.png"],
     "installable": True,
 }

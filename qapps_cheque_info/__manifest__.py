@@ -24,12 +24,13 @@ el formulario de pago.
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "category": "Accounting",
-    "version": "17.0.1.0.1",
+    "version": "17.0.1.0.2",
     "license": "LGPL-3",
     "depends": ["account"],
     "data": [
         "views/account_payment_views.xml",
     ],
+    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
 }

@@ -19,8 +19,9 @@
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Accounting/Payment",
-    "version": "17.0.1.0.1",
+    "version": "17.0.1.0.2",
     "depends": ["payment_mercado_pago"],
     "license": 'LGPL-3',
+    "images": ["static/description/banner.png"],
     "installable": True,
 }

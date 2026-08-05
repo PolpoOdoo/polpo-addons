@@ -20,7 +20,7 @@
         account_check_deposit (OCA) y qapps_cheque_info.
     """,
     "sequence": 150,
-    "version": "17.0.1.3.13",
+    "version": "17.0.1.3.14",
     "category": "Accounting",
     "license": 'AGPL-3',
     "author": "Polpo ERP",
@@ -49,6 +49,7 @@
             "qapps_check_wallet/static/src/views/check_wallet_dashboard.scss",
         ],
     },
+    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
 }

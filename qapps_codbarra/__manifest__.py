@@ -31,7 +31,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Inventory",
-    "version": "17.0.1.0.4",
+    "version": "17.0.1.0.5",
     "license": 'LGPL-3',
     "depends": [
         "stock",
@@ -42,6 +42,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
         "views/qapps_stock_picking_views.xml",
         "wizard/qapps_barcode_reader_views.xml",
     ],
+    "images": ["static/description/banner.png"],
     "installable": True,
     "application": False,
 }

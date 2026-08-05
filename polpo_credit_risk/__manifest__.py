@@ -61,7 +61,7 @@ Configuración:
   bancaria, en la cuenta de pagos del método de pago entrante "manual".
 """,
     "sequence": 150,
-    "version": "17.0.1.5.3",
+    "version": "17.0.1.5.4",
     "category": "Accounting",
     "license": 'AGPL-3',
     "author": "Polpo ERP",
@@ -81,5 +81,6 @@ Configuración:
         "views/sale_order_views.xml",
         "views/account_move_views.xml",
     ],
+    "images": ["static/description/banner.png"],
     "installable": True,
 }

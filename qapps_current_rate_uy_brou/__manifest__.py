@@ -21,7 +21,7 @@
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Accounting",
-    "version": "17.0.1.0.6",
+    "version": "17.0.1.0.7",
     "depends": ["base", "account"],
     "license": 'LGPL-3',
     "data": [
