@@ -1,5 +1,5 @@
 {
-    "name": "Control de Traslados por Código de Barras - Polpo",
+    "name": "Control de Traslados por Código de Barras",
     "summary": "Control de cantidades en traslados de stock mediante lectura de códigos de barras",
     "description": """
 Qué hace:
@@ -31,7 +31,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Inventory",
-    "version": "17.0.1.0.5",
+    "version": "17.0.1.0.6",
     "license": 'LGPL-3',
     "depends": [
         "stock",

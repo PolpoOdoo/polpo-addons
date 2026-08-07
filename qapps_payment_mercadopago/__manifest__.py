@@ -1,5 +1,5 @@
 {
-    "name": "MercadoPago 12 cuotas - Polpo",
+    "name": "MercadoPago 12 cuotas",
     "summary": "Habilita hasta 12 cuotas en el checkout de MercadoPago",
     "description": """
         Qué hace: override de payment.transaction que fija en 12 el número de
@@ -19,7 +19,7 @@
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Accounting/Payment",
-    "version": "17.0.1.0.2",
+    "version": "17.0.1.0.3",
     "depends": ["payment_mercado_pago"],
     "license": 'LGPL-3',
     "images": ["static/description/banner.png"],

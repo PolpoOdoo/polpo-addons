@@ -1,41 +1,41 @@
 <section class="oe_container">
   <div class="oe_row oe_spaced" style="max-width:840px;margin:0 auto;padding:24px;font-family:Poppins,Arial,Helvetica,sans-serif">
     <div style="border-left:6px solid #0FA656;padding-left:18px;margin-bottom:18px">
-      <h1 style="color:#1A252C;margin:0 0 6px;font-size:29px">Recepciones y entregas controladas con lector de código de barras</h1>
-      <p style="color:#555;font-size:17px;margin:0;line-height:1.45">Cuente lo que de verdad entra y sale del depósito escaneando cada producto, sin necesidad del módulo Barcode de Odoo Enterprise.</p>
+      <h1 style="color:#1A252C;margin:0 0 6px;font-size:29px">Recepciones y entregas controladas con lector de c&#243;digo de barras</h1>
+      <p style="color:#555;font-size:17px;margin:0;line-height:1.45">Cuente lo que de verdad entra y sale del dep&#243;sito escaneando cada producto, sin necesidad del m&#243;dulo Barcode de Odoo Enterprise.</p>
     </div>
-    <p style="margin:0 0 20px;color:#333;line-height:1.6;font-size:15px">Los errores de depósito nacen de aceptar cantidades sin contar: se recibe lo que dice el papel y se entrega lo que dice la pantalla. Este módulo agrega a los traslados de stock un <b>control de cantidades por escaneo</b>: cada lectura del código de barras suma una unidad controlada, y la operación no queda verificada hasta que lo contado coincide con lo pedido.</p>
-<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Qué hace</h2><ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
-<li><b>Lector de códigos integrado al albarán:</b> cada escaneo busca el producto por su código de barras y suma 1 a la cantidad controlada.</li>
-<li><b>Validación en el momento:</b> rechaza productos que no pertenecen a la orden y avisa si se supera la cantidad demandada.</li>
-<li><b>Marca de "Controlado" con usuario y fecha</b>, y nota automática en el chatter del traslado: queda registrado quién contó y cuándo.</li>
-<li><b>Recepciones con cantidades en cero:</b> al confirmar una orden de compra, las cantidades hechas arrancan en 0 para forzar el conteo real en la recepción, en lugar de aceptar las cantidades precompletadas.</li>
-<li>Funciona en Odoo Community: no requiere el módulo Barcode de Enterprise.</li>
+    <p style="margin:0 0 20px;color:#333;line-height:1.6;font-size:15px">Los errores de dep&#243;sito nacen de aceptar cantidades sin contar: se recibe lo que dice el papel y se entrega lo que dice la pantalla. Este m&#243;dulo agrega a los traslados de stock un <b>control de cantidades por escaneo</b>: cada lectura del c&#243;digo de barras suma una unidad controlada, y la operaci&#243;n no queda verificada hasta que lo contado coincide con lo pedido.</p>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Qu&#233; hace</h2><ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li><b>Lector de c&#243;digos integrado al albar&#225;n:</b> cada escaneo busca el producto por su c&#243;digo de barras y suma 1 a la cantidad controlada.</li>
+<li><b>Validaci&#243;n en el momento:</b> rechaza productos que no pertenecen a la orden y avisa si se supera la cantidad demandada.</li>
+<li><b>Marca de "Controlado" con usuario y fecha</b>, y nota autom&#225;tica en el chatter del traslado: queda registrado qui&#233;n cont&#243; y cu&#225;ndo.</li>
+<li><b>Recepciones con cantidades en cero:</b> al confirmar una orden de compra, las cantidades hechas arrancan en 0 para forzar el conteo real en la recepci&#243;n, en lugar de aceptar las cantidades precompletadas.</li>
+<li>Funciona en Odoo Community: no requiere el m&#243;dulo Barcode de Enterprise.</li>
 </ul>
-<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Para quién es</h2>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Para qui&#233;n es</h2>
 <ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
-<li>Depósitos que reciben mercadería y quieren <b>conteo real contra la orden de compra</b>, no una confirmación a ciegas.</li>
-<li>Expedición que <b>controla cada bulto antes de entregar</b>, con el registro de quién controló visible para ventas y administración.</li>
+<li>Dep&#243;sitos que reciben mercader&#237;a y quieren <b>conteo real contra la orden de compra</b>, no una confirmaci&#243;n a ciegas.</li>
+<li>Expedici&#243;n que <b>controla cada bulto antes de entregar</b>, con el registro de qui&#233;n control&#243; visible para ventas y administraci&#243;n.</li>
 </ul>
-<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Cómo funciona</h2><ol style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
-<li>Abra el traslado (recepción o entrega) y ejecute el lector de códigos.</li>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">C&#243;mo funciona</h2><ol style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li>Abra el traslado (recepci&#243;n o entrega) y ejecute el lector de c&#243;digos.</li>
 <li>Escanee cada unidad: el sistema la identifica y suma a la cantidad controlada.</li>
 <li>Si algo no pertenece a la orden o se pasa de cantidad, el sistema lo rechaza en el momento.</li>
-<li>Con todas las líneas verificadas, el traslado queda marcado como Controlado, con usuario y fecha.</li>
+<li>Con todas las l&#237;neas verificadas, el traslado queda marcado como Controlado, con usuario y fecha.</li>
 </ol>
 <h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Preguntas frecuentes</h2>
-<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Necesito Odoo Enterprise?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">No. Funciona en Community y Enterprise; justamente evita depender del módulo Barcode de Enterprise.</p>
-<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Qué lector necesito?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Cualquier lector de código de barras que escriba como teclado sobre el campo de escaneo.</p>
-<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Puedo controlar sin escanear?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Sí: la marca Controlado puede completarse manualmente, y queda igual el registro de usuario y fecha.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>&#191;Necesito Odoo Enterprise?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">No. Funciona en Community y Enterprise; justamente evita depender del m&#243;dulo Barcode de Enterprise.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>&#191;Qu&#233; lector necesito?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Cualquier lector de c&#243;digo de barras que escriba como teclado sobre el campo de escaneo.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>&#191;Puedo controlar sin escanear?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">S&#237;: la marca Controlado puede completarse manualmente, y queda igual el registro de usuario y fecha.</p>
 <hr style="border:none;border-top:1px solid #DDE4E7;margin:26px 0"/>
 <h2 style="color:#1A252C;font-size:21px;margin:0 0 10px">Barcode Quantity Control for Stock Transfers (English)</h2>
 <p style="margin:0 0 8px;color:#333;line-height:1.6;font-size:15px">Count what actually enters and leaves your warehouse by scanning each product on receipts and deliveries, without the Odoo Enterprise Barcode module: per-scan validation against the order, controlled-quantity tracking, "checked" flag with user and date, and purchase receipts starting at zero quantities to force a real count.</p>
 <div style="background:#E9F7F0;border:1px solid #DDE4E7;border-radius:12px;padding:20px 22px;margin:28px 0 0">
-      <h2 style="color:#1A252C;font-size:19px;margin:0 0 8px">¿Le interesa este módulo?</h2>
-      <p style="margin:0;color:#333;line-height:1.6;font-size:15px">Si lo necesita en otra versión de Odoo, encontró un error o quiere saber más sobre nosotros y nuestras implementaciones, escríbanos a <a href="mailto:info@polpo.uy" style="color:#0FA656;text-decoration:none"><b>info@polpo.uy</b></a>, déjenos su consulta en el <a href="https://polpo.uy/contactus?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_codbarra" style="color:#0FA656;text-decoration:none"><b>formulario de contacto</b></a> o conozca lo que hacemos en <a href="https://polpo.uy/?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_codbarra" style="color:#0FA656;text-decoration:none"><b>polpo.uy</b></a>.</p>
+      <h2 style="color:#1A252C;font-size:19px;margin:0 0 8px">&#191;Le interesa este m&#243;dulo?</h2>
+      <p style="margin:0;color:#333;line-height:1.6;font-size:15px">Si lo necesita en otra versi&#243;n de Odoo, encontr&#243; un error o quiere saber m&#225;s sobre nosotros y nuestras implementaciones, escr&#237;banos a <a href="mailto:info@polpo.uy" style="color:#0FA656;text-decoration:none"><b>info@polpo.uy</b></a>, d&#233;jenos su consulta en el <a href="https://polpo.uy/contactus?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_codbarra" style="color:#0FA656;text-decoration:none"><b>formulario de contacto</b></a> o conozca lo que hacemos en <a href="https://polpo.uy/?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_codbarra" style="color:#0FA656;text-decoration:none"><b>polpo.uy</b></a>.</p>
       <p style="margin:10px 0 0;color:#4a5a52;line-height:1.55;font-size:13px"><i>Need this module for another Odoo version, found a bug or want to know more about us? Write to info@polpo.uy or use our contact form.</i></p>
     </div>
 <hr style="border:none;border-top:1px solid #DDE4E7;margin:26px 0"/>
-    <p style="color:#888;font-size:13px;margin:0">Desarrollado por <a href="https://polpo.uy" style="color:#0FA656;text-decoration:none">Polpo ERP</a>, implementadores de Odoo desde Uruguay para toda la región. Soporte: info@polpo.uy</p>
+    <p style="color:#888;font-size:13px;margin:0">Desarrollado por <a href="https://polpo.uy" style="color:#0FA656;text-decoration:none">Polpo ERP</a>, implementadores de Odoo desde Uruguay para toda la regi&#243;n. Soporte: info@polpo.uy</p>
   </div>
 </section>

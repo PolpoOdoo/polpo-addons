@@ -1,5 +1,5 @@
 {
-    "name": "Cheque Info en Pagos y Apuntes - Polpo",
+    "name": "Cheque Info en Pagos y Apuntes",
     "summary": "Número de cheque, vencimiento y observaciones en el pago, propagados a los apuntes contables",
     "description": """
 Qué hace:
@@ -24,7 +24,7 @@ el formulario de pago.
     "author": "Polpo ERP",
     "website": "https://polpo.uy",
     "category": "Accounting",
-    "version": "17.0.1.0.2",
+    "version": "17.0.1.0.3",
     "license": "LGPL-3",
     "depends": ["account"],
     "data": [

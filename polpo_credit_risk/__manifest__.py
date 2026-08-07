@@ -2,7 +2,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 {
-    "name": "Control de Crédito Extendido - Polpo",
+    "name": "Control de Crédito Extendido",
     "summary": "Control de riesgo crediticio extendido: cheques diferidos en cartera, "
     "crédito adicional temporal y autorización de excepciones con trazabilidad",
     "description": """
@@ -61,7 +61,7 @@ Configuración:
   bancaria, en la cuenta de pagos del método de pago entrante "manual".
 """,
     "sequence": 150,
-    "version": "17.0.1.5.4",
+    "version": "17.0.1.5.5",
     "category": "Accounting",
     "license": 'AGPL-3',
     "author": "Polpo ERP",

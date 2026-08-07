@@ -1,5 +1,5 @@
 {
-    "name": "Cotizaciones BROU Uruguay - Polpo",
+    "name": "Cotizaciones BROU Uruguay",
     "summary": "Importa automáticamente del sitio del BROU las tasas de compra y venta del dólar (monedas DOC y DOL)",
     "description": """
         Qué hace: un cron diario scrapea la tabla de cotizaciones del sitio web del
@@ -21,7 +21,7 @@
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Accounting",
-    "version": "17.0.1.0.7",
+    "version": "17.0.1.0.8",
     "depends": ["base", "account"],
     "license": 'LGPL-3',
     "data": [

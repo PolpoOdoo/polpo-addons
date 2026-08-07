@@ -1,5 +1,5 @@
 {
-    "name": "Retenciones en Garantía y CCE - Polpo",
+    "name": "Retenciones en Garantía y CCE",
     "summary": "Retenciones en garantía y Certificados de Crédito fiscal (CCE) sobre facturas de cliente",
     "description": """
 Qué hace:
@@ -34,7 +34,7 @@ crédito fiscal" por compañía. Compatible con qapps_efactura (no lo requiere).
     "website": "https://polpo.uy",
     "support": "info@polpo.uy",
     "category": "Accounting",
-    "version": "17.0.1.0.14",
+    "version": "17.0.1.0.15",
     "license": 'LGPL-3',
     "depends": [
         "account",

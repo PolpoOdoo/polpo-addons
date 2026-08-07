@@ -1,43 +1,43 @@
 <section class="oe_container">
   <div class="oe_row oe_spaced" style="max-width:840px;margin:0 auto;padding:24px;font-family:Poppins,Arial,Helvetica,sans-serif">
     <div style="border-left:6px solid #0FA656;padding-left:18px;margin-bottom:18px">
-      <h1 style="color:#1A252C;margin:0 0 6px;font-size:29px">Venda en una sucursal el stock que está en otra</h1>
-      <p style="color:#555;font-size:17px;margin:0;line-height:1.45">El cliente compra en la sucursal aunque la mercadería esté en otro depósito: el sistema arma el traslado interno o el envío directo desde el depósito de origen al cliente.</p>
+      <h1 style="color:#1A252C;margin:0 0 6px;font-size:29px">Venda en una sucursal el stock que est&#225; en otra</h1>
+      <p style="color:#555;font-size:17px;margin:0;line-height:1.45">El cliente compra en la sucursal aunque la mercader&#237;a est&#233; en otro dep&#243;sito: el sistema arma el traslado interno o el env&#237;o directo desde el dep&#243;sito de origen al cliente.</p>
     </div>
-    <p style="margin:0 0 20px;color:#333;line-height:1.6;font-size:15px">En una empresa con varias sucursales o depósitos, la venta no puede depender de dónde está físicamente la mercadería. Este módulo permite <b>vender en una sucursal el stock ubicado en otro depósito</b> y resuelve el movimiento con dos caminos: traslado interno con tránsito y doble validación, o envío directo desde el depósito de origen (típicamente el central) al cliente.</p>
-<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Qué hace</h2><ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
-<li><b>Venta inter sucursal:</b> el pedido se hace en la sucursal y el stock sale del depósito donde realmente está.</li>
-<li><b>Traslado interno con etapa de tránsito y doble validación:</b> salida confirmada en el depósito de origen y recepción confirmada en el destino, sin stock que "desaparece" en el camino.</li>
-<li><b>Envío directo (drop-ship interno):</b> el depósito de origen entrega directamente al cliente, sin pasar por la sucursal que vendió.</li>
-<li><b>Cancelación en cascada:</b> si se cancela la venta, se cancelan los traslados y envíos directos pendientes que había generado; los ya validados quedan para gestionarlos a mano.</li>
-<li><b>Disponible y faltante a la vista en la línea de venta:</b> el vendedor ve cuánto hay en el almacén de la venta y, si falta, tiene que elegir cómo cumplir el faltante antes de confirmar.</li>
+    <p style="margin:0 0 20px;color:#333;line-height:1.6;font-size:15px">En una empresa con varias sucursales o dep&#243;sitos, la venta no puede depender de d&#243;nde est&#225; f&#237;sicamente la mercader&#237;a. Este m&#243;dulo permite <b>vender en una sucursal el stock ubicado en otro dep&#243;sito</b> y resuelve el movimiento con dos caminos: traslado interno con tr&#225;nsito y doble validaci&#243;n, o env&#237;o directo desde el dep&#243;sito de origen (t&#237;picamente el central) al cliente.</p>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Qu&#233; hace</h2><ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li><b>Venta inter sucursal:</b> el pedido se hace en la sucursal y el stock sale del dep&#243;sito donde realmente est&#225;.</li>
+<li><b>Traslado interno con etapa de tr&#225;nsito y doble validaci&#243;n:</b> salida confirmada en el dep&#243;sito de origen y recepci&#243;n confirmada en el destino, sin stock que "desaparece" en el camino.</li>
+<li><b>Env&#237;o directo (drop-ship interno):</b> el dep&#243;sito de origen entrega directamente al cliente, sin pasar por la sucursal que vendi&#243;.</li>
+<li><b>Cancelaci&#243;n en cascada:</b> si se cancela la venta, se cancelan los traslados y env&#237;os directos pendientes que hab&#237;a generado; los ya validados quedan para gestionarlos a mano.</li>
+<li><b>Disponible y faltante a la vista en la l&#237;nea de venta:</b> el vendedor ve cu&#225;nto hay en el almac&#233;n de la venta y, si falta, tiene que elegir c&#243;mo cumplir el faltante antes de confirmar.</li>
 </ul>
-<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Para quién es</h2>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Para qui&#233;n es</h2>
 <ul style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
-<li><b>Cadenas de sucursales</b> con un depósito central que abastece los locales y entrega a clientes.</li>
+<li><b>Cadenas de sucursales</b> con un dep&#243;sito central que abastece los locales y entrega a clientes.</li>
 <li><b>Importadoras y distribuidoras</b> que venden desde varios puntos contra un mismo stock.</li>
-<li>Empresas donde hoy la venta entre sucursales se resuelve <b>por teléfono y remito manual</b>.</li>
+<li>Empresas donde hoy la venta entre sucursales se resuelve <b>por tel&#233;fono y remito manual</b>.</li>
 </ul>
-<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Cómo funciona</h2><ol style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
-<li>Configure en el almacén de la sucursal cuál es su depósito de origen, la ubicación de tránsito y los tipos de operación a usar.</li>
-<li>Cargue el pedido de venta en la sucursal: cada línea muestra lo disponible en ese almacén y cuánto falta.</li>
-<li>Elija el camino para el faltante: traslado interno hacia la sucursal, envío directo desde el depósito de origen al cliente, o entregar solo lo existente.</li>
-<li>El sistema genera los movimientos correspondientes; el traslado pasa por tránsito con validación en origen y en destino.</li>
+<h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">C&#243;mo funciona</h2><ol style="color:#333;line-height:1.7;font-size:15px;margin:0;padding-left:22px">
+<li>Configure en el almac&#233;n de la sucursal cu&#225;l es su dep&#243;sito de origen, la ubicaci&#243;n de tr&#225;nsito y los tipos de operaci&#243;n a usar.</li>
+<li>Cargue el pedido de venta en la sucursal: cada l&#237;nea muestra lo disponible en ese almac&#233;n y cu&#225;nto falta.</li>
+<li>Elija el camino para el faltante: traslado interno hacia la sucursal, env&#237;o directo desde el dep&#243;sito de origen al cliente, o entregar solo lo existente.</li>
+<li>El sistema genera los movimientos correspondientes; el traslado pasa por tr&#225;nsito con validaci&#243;n en origen y en destino.</li>
 <li>Si la venta se cancela, los movimientos generados que sigan pendientes se cancelan en cascada.</li>
 </ol>
 <h2 style="color:#1A252C;font-size:21px;margin:26px 0 10px">Preguntas frecuentes</h2>
-<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Qué pasa con el stock mientras viaja entre depósitos?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Queda en una ubicación de tránsito: salió del origen pero todavía no entró al destino, y ambas puntas deben validar.</p>
-<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Puedo entregar directo al cliente desde el depósito de origen?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Sí, ese es el segundo camino: envío directo sin pasar por la sucursal que vendió.</p>
-<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>¿Qué necesito para instalarlo?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Solo los módulos estándar de Ventas e Inventario de Odoo.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>&#191;Qu&#233; pasa con el stock mientras viaja entre dep&#243;sitos?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Queda en una ubicaci&#243;n de tr&#225;nsito: sali&#243; del origen pero todav&#237;a no entr&#243; al destino, y ambas puntas deben validar.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>&#191;Puedo entregar directo al cliente desde el dep&#243;sito de origen?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">S&#237;, ese es el segundo camino: env&#237;o directo sin pasar por la sucursal que vendi&#243;.</p>
+<p style="margin:0 0 4px;color:#1A252C;font-size:15px"><b>&#191;Qu&#233; necesito para instalarlo?</b></p><p style="margin:0 0 12px;color:#333;line-height:1.6;font-size:15px">Solo los m&#243;dulos est&#225;ndar de Ventas e Inventario de Odoo.</p>
 <hr style="border:none;border-top:1px solid #DDE4E7;margin:26px 0"/>
 <h2 style="color:#1A252C;font-size:21px;margin:0 0 10px">Multi Warehouse Inter-Branch Sales (English)</h2>
 <p style="margin:0 0 8px;color:#333;line-height:1.6;font-size:15px">Sell from any branch against stock located in another warehouse: internal transfer with a transit stage and double validation (confirmed out at origin, confirmed in at destination), or direct delivery from the source warehouse to the customer. Cancelling the sale cascades to the pending stock moves it generated. Depends only on standard Sales and Inventory.</p>
 <div style="background:#E9F7F0;border:1px solid #DDE4E7;border-radius:12px;padding:20px 22px;margin:28px 0 0">
-      <h2 style="color:#1A252C;font-size:19px;margin:0 0 8px">¿Le interesa este módulo?</h2>
-      <p style="margin:0;color:#333;line-height:1.6;font-size:15px">Si lo necesita en otra versión de Odoo, encontró un error o quiere saber más sobre nosotros y nuestras implementaciones, escríbanos a <a href="mailto:info@polpo.uy" style="color:#0FA656;text-decoration:none"><b>info@polpo.uy</b></a>, déjenos su consulta en el <a href="https://polpo.uy/contactus?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_multi_stock" style="color:#0FA656;text-decoration:none"><b>formulario de contacto</b></a> o conozca lo que hacemos en <a href="https://polpo.uy/?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_multi_stock" style="color:#0FA656;text-decoration:none"><b>polpo.uy</b></a>.</p>
+      <h2 style="color:#1A252C;font-size:19px;margin:0 0 8px">&#191;Le interesa este m&#243;dulo?</h2>
+      <p style="margin:0;color:#333;line-height:1.6;font-size:15px">Si lo necesita en otra versi&#243;n de Odoo, encontr&#243; un error o quiere saber m&#225;s sobre nosotros y nuestras implementaciones, escr&#237;banos a <a href="mailto:info@polpo.uy" style="color:#0FA656;text-decoration:none"><b>info@polpo.uy</b></a>, d&#233;jenos su consulta en el <a href="https://polpo.uy/contactus?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_multi_stock" style="color:#0FA656;text-decoration:none"><b>formulario de contacto</b></a> o conozca lo que hacemos en <a href="https://polpo.uy/?utm_source=odoo_apps&amp;utm_medium=referral&amp;utm_campaign=qapps_multi_stock" style="color:#0FA656;text-decoration:none"><b>polpo.uy</b></a>.</p>
       <p style="margin:10px 0 0;color:#4a5a52;line-height:1.55;font-size:13px"><i>Need this module for another Odoo version, found a bug or want to know more about us? Write to info@polpo.uy or use our contact form.</i></p>
     </div>
 <hr style="border:none;border-top:1px solid #DDE4E7;margin:26px 0"/>
-    <p style="color:#888;font-size:13px;margin:0">Desarrollado por <a href="https://polpo.uy" style="color:#0FA656;text-decoration:none">Polpo ERP</a>, implementadores de Odoo desde Uruguay para toda la región. Soporte: info@polpo.uy</p>
+    <p style="color:#888;font-size:13px;margin:0">Desarrollado por <a href="https://polpo.uy" style="color:#0FA656;text-decoration:none">Polpo ERP</a>, implementadores de Odoo desde Uruguay para toda la regi&#243;n. Soporte: info@polpo.uy</p>
   </div>
 </section>
