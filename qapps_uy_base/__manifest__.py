@@ -21,7 +21,7 @@ Configuración:
 Sin configuración propia.
 """,
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_uy_base",
     "category": "Localization",
     "version": "16.0.1.0.3",
     "license": "LGPL-3",

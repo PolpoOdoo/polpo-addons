@@ -24,7 +24,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
 """,
     "sequence": 150,
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_codbarra",
     "category": "Inventory",
     "version": '16.0.1.0.3',
     "license": 'LGPL-3',
