@@ -18,7 +18,7 @@
     """,
     "sequence": 150,
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_current_rate_uy_brou",
     "support": "info@polpo.uy",
     "category": "Accounting",
     "version": "17.0.1.0.8",

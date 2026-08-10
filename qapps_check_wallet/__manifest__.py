@@ -24,7 +24,7 @@
     "category": "Accounting",
     "license": 'AGPL-3',
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_check_wallet",
     "support": "info@polpo.uy",
     "depends": [
         "account_check_deposit",

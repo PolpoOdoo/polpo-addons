@@ -11,7 +11,7 @@
     "category": "Inventory",
     "license": 'LGPL-3',
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_multi_stock",
     "support": "info@polpo.uy",
     "depends": [
         "sale_stock",

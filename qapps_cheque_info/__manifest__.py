@@ -22,7 +22,7 @@ Sin configuración propia. Los campos aparecen en el asistente de registro de pa
 el formulario de pago.
 """,
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_cheque_info",
     "category": "Accounting",
     "version": "17.0.1.0.3",
     "license": "LGPL-3",

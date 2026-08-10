@@ -65,7 +65,7 @@ Configuración:
     "category": "Accounting",
     "license": 'AGPL-3',
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=polpo_credit_risk",
     "support": "info@polpo.uy",
     "depends": [
         "sale_financial_risk",

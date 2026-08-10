@@ -16,7 +16,7 @@
         website_sale_autocomplete/controllers/main.py).
     """,
     "author": "Polpo ERP",
-    "website": "https://polpo.uy",
+    "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_website_autocomplete_uy",
     "support": "info@polpo.uy",
     "category": "Website/eCommerce",
     "version": "17.0.1.0.3",
