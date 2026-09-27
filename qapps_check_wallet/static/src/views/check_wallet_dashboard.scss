@@ -1,0 +1,101 @@
+.o_check_wallet_dashboard {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 16px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+
+    .o_check_wallet_card {
+        flex: 1 1 220px;
+        min-width: 220px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        cursor: pointer;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+
+        &:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        &.o_check_wallet_card_total {
+            cursor: default;
+            &:hover {
+                transform: none;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            }
+        }
+
+        .o_check_wallet_card_icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .o_check_wallet_card_body {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .o_check_wallet_card_title {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 2px;
+        }
+
+        .o_check_wallet_card_amount {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .o_check_wallet_card_amount_count {
+            font-size: 28px;
+        }
+
+        .o_check_wallet_card_count {
+            font-size: 12px;
+            color: #868e96;
+            margin-top: 2px;
+        }
+
+        &.o_check_wallet_card_pending {
+            .o_check_wallet_card_icon { background-color: #e7f1ff; color: #0d6efd; }
+            .o_check_wallet_card_amount { color: #0d6efd; }
+        }
+
+        &.o_check_wallet_card_deposited {
+            .o_check_wallet_card_icon { background-color: #e6f4ea; color: #198754; }
+            .o_check_wallet_card_amount { color: #198754; }
+        }
+
+        &.o_check_wallet_card_at_collection {
+            .o_check_wallet_card_icon { background-color: #e8f6f8; color: #0dcaf0; }
+            .o_check_wallet_card_amount { color: #0aa2c0; }
+        }
+
+        &.o_check_wallet_card_overdue {
+            .o_check_wallet_card_icon { background-color: #fff4e5; color: #fd7e14; }
+            .o_check_wallet_card_amount { color: #fd7e14; }
+        }
+
+        &.o_check_wallet_card_total {
+            .o_check_wallet_card_icon { background-color: #f3e8ff; color: #6f42c1; }
+            .o_check_wallet_card_amount { color: #6f42c1; }
+        }
+    }
+}
