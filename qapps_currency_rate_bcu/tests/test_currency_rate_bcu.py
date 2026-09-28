@@ -161,10 +161,15 @@ class TestCurrentRateUy(TransactionCase):
         self.assertTrue(creadas)
         self.assertAlmostEqual(creadas[0].rate, 1.0 / 45.0, places=9)
 
-    def test_parseo_ui_usa_tcc_directo(self):
-        """UYI: ISO esperado 'U.I.', rate = TCC directo (no se invierte).
+    def test_parseo_ui_usa_semantica_estandar(self):
+        """UYI: ISO esperado 'U.I.', rate = 1/TCC como el resto de las monedas.
 
         v18: la Unidad Indexada uruguaya pasó de 'UI' a 'UYI' en res.currency.
+
+        El assert que importa es el segundo, no el valor guardado: en Odoo
+        res.currency.rate.rate son unidades de la moneda por 1 unidad de la
+        moneda de la compañía, así que lo que el usuario tiene que ver es que
+        1 UYI vale el TCC que publicó el BCU.
         """
         ui = self._crear_moneda('UYI')
         datos = [self._dato('U.I.', 5.5)]
@@ -172,13 +177,21 @@ class TestCurrentRateUy(TransactionCase):
         with patch(CLIENT_PATH, side_effect=_build_zeep_mock(self.fecha_cierre, datos)):
             ui.update_currency_rates(ui, self.fecha_cierre)
 
+        company = self.env.company
         creadas = self.Rate.search([
             ('currency_id', '=', ui.id),
             ('name', '=', self.fecha_cierre),
+            ('company_id', '=', company.id),
         ])
         self.assertTrue(creadas)
-        # UI usa el TCC directo.
-        self.assertAlmostEqual(creadas[0].rate, 5.5, places=9)
+        self.assertAlmostEqual(creadas[0].rate, 1.0 / 5.5, places=9)
+        # 1 UYI convertida a la moneda de la compañía da el TCC. Con el TCC
+        # directo que se guardaba antes daba 1/5,5 = 0,1818.
+        self.assertAlmostEqual(
+            ui._convert(1.0, company.currency_id, company, self.fecha_cierre,
+                        round=False),
+            5.5, places=9,
+            msg="1 UYI tiene que valer el TCC del BCU en la moneda de la compañía")
 
     def test_moneda_sin_match_no_crea_tasa(self):
         """Si el ISO de la moneda no está en la respuesta, no se crea tasa."""
@@ -219,7 +232,8 @@ class TestCurrentRateUy(TransactionCase):
 
         self.assertAlmostEqual(r_usd.rate, 1.0 / 40.0, places=9)
         self.assertAlmostEqual(r_eur.rate, 1.0 / 45.0, places=9)
-        self.assertAlmostEqual(r_ui.rate, 5.5, places=9)
+        # La UYI ya no es la excepción: también se guarda invertida.
+        self.assertAlmostEqual(r_ui.rate, 1.0 / 5.5, places=9)
 
     # ------------------------------------------------------------------ #
     # Respuesta vacía / sin tasas

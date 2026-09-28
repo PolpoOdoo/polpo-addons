@@ -6,9 +6,11 @@
         What it does: a daily scheduled action queries the SOAP web services of
         the Central Bank of Uruguay (awsultimocierre + awsbcucotizaciones,
         through zeep) and creates a res.currency.rate for every active currency,
-        in every active company (multi-company). USD and EUR are loaded as the
-        inverse rate (1/TCC); the Indexed Unit (UYI, BCU code "U.I.") is loaded
-        with the direct TCC.
+        in every active company (multi-company). Every currency is stored with
+        the standard Odoo semantics: the BCU publishes the rate as pesos per
+        unit of currency, so the module saves its inverse (1/TCC), which is
+        what res.currency.rate expects. That includes the Indexed Unit (UYI,
+        BCU code "U.I.").
 
         What it is for: keeping exchange rates up to date without manual entry,
         a requirement of the bimonetary UYU/USD operation in Uruguay.
@@ -28,8 +30,10 @@
         Qué hace: una tarea programada (cron) diaria consulta los web services SOAP
         del BCU (awsultimocierre + awsbcucotizaciones, vía zeep) y crea
         res.currency.rate para cada moneda activa, en todas las compañías activas
-        (multi-compañía). USD y EUR se cargan como tasa inversa (1/TCC); la Unidad
-        Indexada (UYI, código BCU "U.I.") se carga con TCC directo.
+        (multi-compañía). Todas las monedas se guardan con la semántica estándar
+        de Odoo: el BCU publica la cotización en pesos por unidad de la moneda,
+        así que el módulo guarda su inversa (1/TCC), que es lo que espera
+        res.currency.rate. Incluye la Unidad Indexada (UYI, código BCU "U.I.").
 
         Para qué sirve: mantener los tipos de cambio al día sin carga manual,
         requisito de la operativa bimonetaria UYU/USD uruguaya.
@@ -49,7 +53,7 @@
     'website': 'https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_currency_rate_bcu',
     'support': 'info@polpo.uy',
     'category': 'Accounting',
-    'version': '18.0.1.0.0',
+    'version': '18.0.1.0.1',
     'depends': ['base', 'mail'],
     'external_dependencies': {'python': ['zeep']},
     'license': 'LGPL-3',

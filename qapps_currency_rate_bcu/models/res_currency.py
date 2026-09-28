@@ -8,6 +8,14 @@ STR_CODIGO_ISO = 'CodigoISO'
 STR_TCC = 'TCC'
 STR_FECHA = 'Fecha'
 
+# El BCU no publica el codigo ISO de res.currency para todas las monedas: el
+# euro viaja como 'EURO' y la Unidad Indexada como 'U.I.'. El resto coincide con
+# el name de la moneda.
+CODIGO_BCU = {
+    'EUR': 'EURO',
+    'UYI': 'U.I.',
+}
+
 
 class ResCurrency(models.Model):
     _inherit = 'res.currency'
@@ -46,36 +54,24 @@ class ResCurrency(models.Model):
         if not rates:
             self.send_email_missing_rate(False)
         for currency in active_currency:
-            if currency.name == 'UYI':
-                rate = [x for x in rates if x[STR_CODIGO_ISO] == 'U.I.']
-                if rate:
-                    for company in empresas:
-                        self.env['res.currency.rate'].create({
-                            'company_id': company.id,
-                            'currency_id': currency.id,
-                            'name': rate[0][STR_FECHA],
-                            'rate': float('{:.12f}'.format(rate[0][STR_TCC]))
-                        })
-            elif currency.name == 'EUR':
-                rate = [x for x in rates if x[STR_CODIGO_ISO] == 'EURO']
-                if rate:
-                    for company in empresas:
-                        self.env['res.currency.rate'].create({
-                            'company_id': company.id,
-                            'currency_id': currency.id,
-                            'name': rate[0][STR_FECHA],
-                            'rate': float('{:.12f}'.format(1 / rate[0][STR_TCC]))
-                        })
-            else:
-                rate = [x for x in rates if x[STR_CODIGO_ISO] == currency.name]
-                if rate:
-                    for company in empresas:
-                        self.env['res.currency.rate'].create({
-                            'company_id': company.id,
-                            'currency_id': currency.id,
-                            'name': rate[0][STR_FECHA],
-                            'rate': float('{:.12f}'.format(1 / rate[0][STR_TCC]))
-                        })
+            codigo = CODIGO_BCU.get(currency.name, currency.name)
+            rate = [x for x in rates if x[STR_CODIGO_ISO] == codigo]
+            if not rate:
+                continue
+            # res.currency.rate.rate son unidades de la moneda por 1 unidad de
+            # la moneda de la compania, mientras que el BCU publica el TCC al
+            # reves (pesos por unidad de la moneda), asi que se guarda su
+            # inversa. Vale para todas las monedas, incluida la Unidad
+            # Indexada: con la UI a 6,65 pesos se guarda 0,150376, y asi 1 UI
+            # convertida con _convert da 6,65 pesos.
+            valor = float('{:.12f}'.format(1 / rate[0][STR_TCC]))
+            for company in empresas:
+                self.env['res.currency.rate'].create({
+                    'company_id': company.id,
+                    'currency_id': currency.id,
+                    'name': rate[0][STR_FECHA],
+                    'rate': valor
+                })
 
     def send_email_missing_rate(self, currency_name):
         currency_email_notif = self.env['ir.config_parameter'].sudo().get_param(CURRENCY_EMAIL_NOTIF)
