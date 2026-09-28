@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Copyright 2026 QEI SRL (Polpo) - License LGPL-3 -->
+<odoo>
+    <record id="view_order_form_multi_stock" model="ir.ui.view">
+        <field name="name">sale.order.form.multi.stock</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form" />
+        <field name="arch" type="xml">
+            <!-- Selector de modo por linea: visible/required SOLO con faltante.
+                 Debe ser rapido (mostrador): un unico dropdown. -->
+            <xpath
+                expr="//field[@name='order_line']/list/field[@name='product_uom_qty']"
+                position="after">
+                <field name="multi_stock_free_local" optional="show" readonly="1" />
+                <field name="multi_stock_tiene_faltante" column_invisible="1" />
+                <field
+                    name="multi_stock_mode"
+                    required="multi_stock_tiene_faltante"
+                    readonly="not multi_stock_tiene_faltante"
+                    optional="show"
+                />
+                <field name="multi_stock_todo_origen" optional="hide" />
+            </xpath>
+
+            <!-- Los traslados y envios directos se crean en la compania del
+                 almacen ORIGEN, asi que la regla multi-compania se los oculta
+                 al vendedor del destino y tampoco entran al boton "Entregas"
+                 del core (se crean sin group_id). Sin esto el mostrador ve la
+                 orden con su entrega cancelada y ninguna salida, y vuelve a
+                 cargar la venta: se despacha dos veces.
+                 Es una pestana de SOLO LECTURA con los datos ya resueltos por
+                 el compute (con sudo acotado a la venta), no una lista
+                 relacional: una lista volveria a pedirle al cliente web leer
+                 los pickings de la otra compania y la regla los filtraria
+                 igual. El objetivo es que el mostrador SEPA que salio, no que
+                 entre al remito. -->
+            <xpath expr="//notebook/page[@name='order_lines']" position="after">
+                <page
+                    name="multi_stock_pickings"
+                    string="Entregas desde otro depósito"
+                    invisible="multi_stock_picking_count == 0">
+                    <field name="multi_stock_picking_count" invisible="1" />
+                    <field name="multi_stock_picking_resumen" readonly="1" />
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>
