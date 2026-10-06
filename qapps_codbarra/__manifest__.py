@@ -59,7 +59,7 @@ productos.
     "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_codbarra",
     "support": "info@polpo.uy",
     "category": "Inventory",
-    "version": "18.0.1.0.0",
+    "version": "18.0.1.0.1",
     "license": "LGPL-3",
     "depends": [
         "stock",
