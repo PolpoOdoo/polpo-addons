@@ -31,7 +31,7 @@ Sin configuración propia. Requiere el campo 'Código de barras' completo en los
     "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_codbarra",
     "support": "info@polpo.uy",
     "category": "Inventory",
-    "version": "17.0.1.0.7",
+    "version": "17.0.1.0.8",
     "license": 'LGPL-3',
     "depends": [
         "stock",
