@@ -281,6 +281,26 @@ class QappsCheckEndorsement(models.Model):
                     "Todos los cheques deben pertenecer a la cuenta de cheques en cartera del diario seleccionado."
                 )
             )
+        # Mismo caso que el del envío al cobro: el dominio del formulario
+        # esconde del diálogo los cheques que ya salieron de la cartera, pero no
+        # gobierna las escrituras sobre el one2many.
+        for check in self.check_payment_ids:
+            if check.check_collection_state:
+                raise UserError(
+                    _(
+                        "El cheque %s ya está en el circuito de cobranza bancaria; "
+                        "no se puede endosar. Retírelo de este endoso."
+                    )
+                    % (check.numero_cheque or check.ref or check.name or "")
+                )
+            if check.reconciled:
+                raise UserError(
+                    _(
+                        "El cheque %s ya está conciliado: salió de la cartera por otro "
+                        "documento. Retírelo de este endoso."
+                    )
+                    % (check.numero_cheque or check.ref or check.name or "")
+                )
         other_currency = self.invoice_ids.filtered(
             lambda inv: inv.currency_id != self.currency_id
         )

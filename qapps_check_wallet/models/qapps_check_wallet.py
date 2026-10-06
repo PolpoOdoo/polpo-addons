@@ -100,6 +100,13 @@ class QappsCheckWallet(models.Model):
         readonly=True,
         help="Envío al cobro (entrega al banco) que incluye este cheque.",
     )
+    boleta_ref = fields.Char(
+        string="Referencia de boleta",
+        readonly=True,
+        help="Referencia de boleta del envío al cobro que incluye este cheque. "
+        "Una misma referencia puede repetirse en envíos de la casa central y "
+        "de la sucursal cuando la boleta física es compartida.",
+    )
     collection_doc_state = fields.Selection(
         selection=[("draft", "Borrador"), ("sent", "Enviado al cobro")],
         string="Estado envío",
@@ -469,6 +476,7 @@ class QappsCheckWallet(models.Model):
                     endo.state AS endorsement_state,
                     aml.check_collection_id AS check_collection_id,
                     coll.state AS collection_doc_state,
+                    coll.boleta_ref AS boleta_ref,
                     aml.collection_settle_move_id AS collection_settle_move_id,
                     CASE
                         WHEN aml.check_deposit_id IS NOT NULL AND dep.state = 'done' THEN 'deposited'

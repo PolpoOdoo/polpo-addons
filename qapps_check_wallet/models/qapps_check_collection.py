@@ -107,7 +107,11 @@ class QappsCheckCollection(models.Model):
         readonly=True,
         copy=False,
         check_company=True,
-        help='Asiento que mueve los cheques de la cuenta de cartera a la cuenta puente "al cobro".',
+        ondelete="restrict",
+        help='Asiento que mueve los cheques de la cuenta de cartera a la cuenta puente "al cobro". '
+        "No se puede eliminar mientras el envío lo referencie: con el ondelete por "
+        "defecto, borrar el asiento dejaba el envío en estado enviado y sin asiento. "
+        "Para deshacerlo hay que volver el envío a borrador.",
     )
     check_payment_ids = fields.One2many(
         comodel_name="account.move.line",
@@ -206,6 +210,21 @@ class QappsCheckCollection(models.Model):
                 )
             )
 
+    @api.constrains("state", "move_id")
+    def _check_sent_has_move(self):
+        """Un envío enviado al cobro sin asiento es un dato imposible: los
+        cheques figuran fuera de la cartera pero no hay línea puente contra la
+        cual acreditarlos ni rechazarlos."""
+        for rec in self:
+            if rec.state == "sent" and not rec.move_id:
+                raise ValidationError(
+                    _(
+                        "El envío al cobro '%s' no puede quedar en estado enviado "
+                        "sin asiento contable."
+                    )
+                    % rec.display_name
+                )
+
     @api.constrains("currency_id", "check_payment_ids")
     def _check_currency(self):
         for rec in self:
@@ -278,6 +297,49 @@ class QappsCheckCollection(models.Model):
                     "del diario seleccionado."
                 )
             )
+        self._check_checks_available()
+
+    def _check_checks_available(self):
+        """Ningún cheque del envío puede estar ya comprometido en otro envío al
+        cobro. El dominio del formulario los esconde del diálogo de selección,
+        pero no gobierna las escrituras; y los envíos anteriores a este control
+        pueden tener cheques enganchados de más. Sin esta validación el envío se
+        valida igual, le roba el cheque al envío original y la acreditación
+        queda sin línea puente que conciliar."""
+        self.ensure_one()
+        for check in self.check_payment_ids:
+            owner = self._collection_of_bridge_line(self._get_open_bridge_line(check))
+            if owner and owner != self:
+                raise UserError(
+                    _(
+                        "El cheque %(check)s ya fue enviado al cobro en %(collection)s. "
+                        "Retírelo de este envío o reviértalo primero desde el envío original.",
+                        check=check.numero_cheque or check.ref or check.name or "",
+                        collection=owner.display_name,
+                    )
+                )
+            if check.check_collection_state:
+                situaciones = dict(
+                    check._fields["check_collection_state"]._description_selection(
+                        self.env
+                    )
+                )
+                raise UserError(
+                    _(
+                        "El cheque %(check)s ya está en el circuito de cobranza "
+                        "(situación: %(situacion)s). Retírelo de este envío.",
+                        check=check.numero_cheque or check.ref or check.name or "",
+                        situacion=situaciones.get(check.check_collection_state),
+                    )
+                )
+            if check.reconciled:
+                raise UserError(
+                    _(
+                        "El cheque %s ya está conciliado: salió de la cartera por otro "
+                        "documento. Retírelo de este envío."
+                    )
+                    % (check.numero_cheque or check.ref or check.name or "")
+                )
 
     def _prepare_send_move_vals(self):
         self.ensure_one()
@@ -331,7 +393,20 @@ class QappsCheckCollection(models.Model):
         for rec in self:
             rec._check_before_validate()
             move = self.env["account.move"].create(rec._prepare_send_move_vals())
+            if not move.line_ids:
+                raise UserError(
+                    _(
+                        "El asiento de envío al cobro de '%s' quedó sin líneas; "
+                        "no se envió nada al cobro."
+                    )
+                    % rec.display_name
+                )
             move.action_post()
+            if move.state != "posted":
+                raise UserError(
+                    _("No se pudo contabilizar el asiento del envío al cobro '%s'.")
+                    % rec.display_name
+                )
 
             # Sacar los cheques de la cartera: conciliar las líneas de cheque
             # originales contra los créditos a la cuenta de cheques en cartera.
@@ -363,14 +438,17 @@ class QappsCheckCollection(models.Model):
                         "rechazados en este envío. Revierta primero esos movimientos."
                     )
                 )
-            if rec.move_id:
-                move = rec.move_id
+            # Primero se suelta el asiento y recién después se borra: move_id es
+            # ondelete='restrict', y además el envío no puede quedar en estado
+            # enviado sin asiento en ningún momento.
+            move = rec.move_id
+            rec.check_payment_ids.write({"check_collection_state": False})
+            rec.write({"state": "draft", "move_id": False})
+            if move:
                 move.line_ids.remove_move_reconcile()
                 if move.state == "posted":
                     move.button_cancel()
                 move.with_context(force_delete=True).unlink()
-            rec.check_payment_ids.write({"check_collection_state": False})
-            rec.write({"state": "draft", "move_id": False})
         return True
 
     def action_open_move(self):
@@ -389,17 +467,94 @@ class QappsCheckCollection(models.Model):
     # ------------------------------------------------------------------
     # Acreditación / rechazo por cheque (invocado desde la cartera)
     # ------------------------------------------------------------------
-    def _get_bridge_line(self, check):
-        """Línea abierta en la cuenta puente correspondiente a un cheque."""
-        return self.env["account.move.line"].search(
+    @api.model
+    def _collection_of_bridge_line(self, bridge_line):
+        """Envío al cobro dueño del asiento donde vive una línea puente.
+
+        Se busca en sudo a propósito: es una verificación de integridad y un
+        usuario parado en una sola sucursal no ve los envíos de la madre; si no
+        lo viera, dejaría de detectar el conflicto."""
+        if not bridge_line:
+            return self.browse()
+        owner = self.sudo().search([("move_id", "=", bridge_line.move_id.id)], limit=1)
+        return self.browse(owner.id) if owner else self.browse()
+
+    @api.model
+    def _get_open_bridge_lines(self, check):
+        """Líneas puente abiertas de un cheque, en cualquier envío al cobro.
+
+        La línea puente se reconoce por su estructura, no por la configuración
+        del momento: es un debe sin conciliar de un asiento de envío al cobro.
+        Los dos filtros importan. collection_check_line_id marca también la
+        línea de cartera del asiento de envío y las dos del asiento de
+        acreditación o rechazo, y la línea de banco de una acreditación queda
+        sin conciliar, así que sin acotar se devolvería una línea que no es el
+        puente. Y no se filtra por las cuentas puente configuradas hoy porque el
+        mapeo por moneda puede haber cambiado después del envío: la cuenta vieja
+        dejaría de estar en la lista y la línea se volvería invisible."""
+        candidates = self.env["account.move.line"].search(
             [
                 ("collection_check_line_id", "=", check.id),
-                ("account_id", "=", self.collection_account_id.id),
+                ("debit", ">", 0),
                 ("reconciled", "=", False),
                 ("parent_state", "=", "posted"),
-            ],
-            limit=1,
+            ]
         )
+        return candidates.filtered(
+            lambda line: bool(self._collection_of_bridge_line(line))
+        )
+
+    @api.model
+    def _get_open_bridge_line(self, check):
+        """Línea puente abierta de un cheque, en cualquier envío al cobro."""
+        return self._get_open_bridge_lines(check)[:1]
+
+    def _get_bridge_line(self, check):
+        """Línea abierta en la cuenta puente correspondiente a un cheque.
+
+        Prefiere la de la cuenta puente de este envío y, si no hay, toma la que
+        exista en cualquier otro envío: el cheque puede estar colgado de un
+        envío distinto del que generó su asiento, o el mapeo de cuentas por
+        moneda puede haber cambiado después del envío. Sin ese segundo intento
+        la acreditación cortaba con "no se encontró la línea de cuenta puente"."""
+        self.ensure_one()
+        lines = self._get_open_bridge_lines(check)
+        propias = lines.filtered(
+            lambda line: line.account_id == self.collection_account_id
+        )
+        return (propias or lines)[:1]
+
+    @api.model
+    def _realign_collection_links(self, check_lines):
+        """Devuelve cada cheque al envío al cobro que efectivamente lo
+        contabilizó, cuando su check_collection_id apunta a otro.
+
+        Es la reparación del dato roto por el reenvío: mientras el vínculo miente,
+        el envío original figura sin cheques y la acreditación se contabiliza
+        con las cuentas y el banco del envío equivocado. Queda registrado en el
+        chatter de los dos documentos."""
+        for check in check_lines:
+            owner = self._collection_of_bridge_line(self._get_open_bridge_line(check))
+            stale = check.check_collection_id
+            if not owner or owner == stale:
+                continue
+            ref = check.numero_cheque or check.ref or check.name or ""
+            check.check_collection_id = owner.id
+            owner.message_post(
+                body=_(
+                    "El cheque %(check)s volvió a este envío: figuraba en %(stale)s, "
+                    "que no tiene su asiento de envío al cobro."
+                )
+                % {"check": ref, "stale": stale.display_name or _("otro envío")}
+            )
+            if stale:
+                stale.message_post(
+                    body=_(
+                        "El cheque %(check)s se devolvió a %(owner)s, que es el envío "
+                        "que generó su asiento."
+                    )
+                    % {"check": ref, "owner": owner.display_name}
+                )
 
     @api.model
     def _process_checks(self, check_lines, operation, date=None):
@@ -420,6 +575,9 @@ class QappsCheckCollection(models.Model):
                     'Seleccione cheques en estado "Al cobro" pendientes de acreditación o rechazo.'
                 )
             )
+        # Antes de agrupar: el cheque tiene que estar colgado del envío que lo
+        # contabilizó, porque de ahí salen el banco, la moneda y las cuentas.
+        self._realign_collection_links(valid)
 
         for collection in valid.check_collection_id:
             group = valid.filtered(lambda l: l.check_collection_id == collection)
@@ -490,7 +648,12 @@ class QappsCheckCollection(models.Model):
                                 0,
                                 {
                                     "name": label,
-                                    "account_id": collection.collection_account_id.id,
+                                    # La cuenta sale de la línea puente encontrada,
+                                    # no del mapeo actual: si el mapeo por moneda
+                                    # cambió después del envío, acreditar contra la
+                                    # cuenta nueva dejaría la vieja descuadrada y la
+                                    # conciliación no cruzaría.
+                                    "account_id": bridge_line.account_id.id,
                                     "partner_id": check.partner_id.id,
                                     "debit": 0.0,
                                     "credit": check.debit,
@@ -504,7 +667,7 @@ class QappsCheckCollection(models.Model):
                 )
                 move.action_post()
                 credit_bridge = move.line_ids.filtered(
-                    lambda l: l.account_id == collection.collection_account_id
+                    lambda l: l.account_id == bridge_line.account_id
                 )
                 (bridge_line + credit_bridge).reconcile()
                 check.write(

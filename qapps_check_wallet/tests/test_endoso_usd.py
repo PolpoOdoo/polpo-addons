@@ -3,7 +3,7 @@
 
 El endoso a proveedor (qapps.check.endorsement.action_validate) arma a mano un
 asiento y reconcilia el cheque + (opcional) las facturas. No tenía cobertura para
-moneda extranjera. EI opera dual-currency UYU/USD, así que el endoso de un cheque
+moneda extranjera. En una operación bimoneda UYU/USD el endoso de un cheque
 en USD debe: quedar en la moneda del cheque, generar un asiento BALANCEADO con
 currency_id/amount_currency correctos, sacar el cheque de la cartera (reconciliar
 la línea de cartera) y dejar el débito a proveedor como pago a cuenta.

@@ -29,6 +29,7 @@ class AccountCheckDeposit(models.Model):
                 ("check_deposit_id", "=", False),
                 ("check_endorsement_id", "=", False),
                 ("check_collection_id", "=", False),
+                ("check_collection_state", "=", False),
                 ("currency_id", "=", self.currency_id.id),
                 ("parent_state", "=", "posted"),
             ]

@@ -255,7 +255,7 @@ class TestCheckWalletSucursal(AccountTestInvoicingCommon):
     #  El documento sigue a los cheques, no a la compañía activa           #
     # ------------------------------------------------------------------ #
     def test_envio_al_cobro_hereda_la_compania_del_cheque(self):
-        """Julio operaba parado en la madre como workaround. Si los cheques son
+        """Operar parado en la madre era el workaround. Si los cheques son
         de la sucursal, el documento tiene que nacer en la sucursal: si nacía en
         la madre, conciliar sus líneas contra las del cheque falla por compañías
         distintas."""
@@ -359,3 +359,31 @@ class TestCheckWalletSucursal(AccountTestInvoicingCommon):
         envio_matriz.boleta_ref = "BOL-0002"
         self.assertEqual(envio_matriz.boleta_ref, "BOL-0002")
         self.assertFalse(envio_matriz.copy_data()[0].get("boleta_ref"))
+
+    def test_referencia_de_boleta_visible_en_la_cartera(self):
+        """La referencia de boleta cargada en el envío al cobro debe verse
+        desde la cartera de cheques (antes el dato se
+        grababa en el envío pero ninguna pantalla de la cartera lo
+        mostraba)."""
+        linea = self._cheque_en_cartera_de_la_sucursal()
+        envio = self.env["qapps.check.collection"].with_company(
+            self.sucursal
+        ).create({
+            "company_id": self.sucursal.id,
+            "journal_id": self.diario_cheques.id,
+            "bank_journal_id": self.banco_destino.id,
+            "currency_id": self.moneda.id,
+            "check_payment_ids": [(6, 0, linea.ids)],
+            "boleta_ref": "BOL-7777",
+        })
+        envio.action_validate()
+
+        # La cartera es una vista SQL: bajar la caché del ORM antes de leerla.
+        self.env.flush_all()
+        cheque = self.env["qapps.check.wallet"].with_context(
+            allowed_company_ids=[self.matriz.id, self.sucursal.id]
+        ).search([("move_line_id", "=", linea.id)])
+        self.assertEqual(len(cheque), 1)
+        self.assertEqual(
+            cheque.boleta_ref, "BOL-7777",
+            "la cartera debe mostrar la referencia de boleta del envío")

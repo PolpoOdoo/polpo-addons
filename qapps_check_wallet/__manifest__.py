@@ -20,7 +20,7 @@
         account_check_deposit (OCA) y qapps_cheque_info.
     """,
     "sequence": 150,
-    "version": "17.0.1.3.15",
+    "version": "17.0.1.3.17",
     "category": "Accounting",
     "license": 'AGPL-3',
     "author": "Polpo ERP",

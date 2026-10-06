@@ -120,6 +120,11 @@
                                 invisible="not check_collection_id"
                             />
                             <field
+                                name="boleta_ref"
+                                readonly="1"
+                                invisible="not check_collection_id"
+                            />
+                            <field
                                 name="company_id"
                                 readonly="1"
                                 groups="base.group_multi_company"
@@ -190,6 +195,7 @@
                 <field name="check_deposit_id" optional="show" />
                 <field name="check_endorsement_id" optional="show" />
                 <field name="check_collection_id" optional="show" />
+                <field name="boleta_ref" optional="show" />
                 <field name="move_id" optional="hide" />
                 <field name="payment_id" optional="hide" />
                 <field name="company_id" groups="base.group_multi_company" optional="hide" />
@@ -208,6 +214,7 @@
                 <field name="currency_id" />
                 <field name="journal_id" />
                 <field name="check_deposit_id" />
+                <field name="boleta_ref" />
                 <field name="due_date" />
 
                 <filter
@@ -313,6 +320,11 @@
                         name="groupby_collection"
                         string="Envío al cobro"
                         context="{'group_by': 'check_collection_id'}"
+                    />
+                    <filter
+                        name="groupby_boleta_ref"
+                        string="Referencia de boleta"
+                        context="{'group_by': 'boleta_ref'}"
                     />
                     <filter
                         name="groupby_due_date"
