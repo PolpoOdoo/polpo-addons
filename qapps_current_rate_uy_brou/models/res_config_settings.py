@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import fields, models
 
 
 class ResConfigSettings(models.TransientModel):
@@ -14,6 +14,14 @@ class ResConfigSettings(models.TransientModel):
         self.env["ir.config_parameter"].set_param(
             "brou.currency_update", self.brou_currency_update
         )
+        # Por xmlid y al guardar: un search por nombre no ve el cron apagado
+        # (active_test), y prenderlo en un onchange escribia aunque se descartaran los Ajustes.
+        cron = self.env.ref(
+            "qapps_current_rate_uy_brou.ir_cron_fetch_brou_rates",
+            raise_if_not_found=False,
+        )
+        if cron:
+            cron.sudo().active = self.brou_currency_update
 
     def get_values(self):
         res = super().get_values()
@@ -25,13 +33,3 @@ class ResConfigSettings(models.TransientModel):
             }
         )
         return res
-
-    @api.onchange("brou_currency_update")
-    def _onchange_brou_currency_update(self):
-        cron_job = (
-            self.env["ir.cron"]
-            .sudo()
-            .search([("name", "=", "Actualizar tasas de cambio BROU")])
-        )
-        if cron_job:
-            cron_job.sudo().update({"active": self.brou_currency_update})

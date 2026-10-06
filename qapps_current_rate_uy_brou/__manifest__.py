@@ -21,11 +21,12 @@
     "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_current_rate_uy_brou",
     "support": "info@polpo.uy",
     "category": "Accounting",
-    "version": "17.0.1.0.8",
+    "version": "17.0.1.0.9",
     "depends": ["base", "account"],
     "license": 'LGPL-3',
     "data": [
         "security/ir.model.access.csv",
+        "data/ir_cron.xml",
         # 'views/brou_currency_rate_views.xml',
         "views/res_config_settings_views.xml",
     ],
