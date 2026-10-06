@@ -9,7 +9,7 @@
                 <page
                     string="Retenciones / CCE"
                     name="qapps_retenciones_cce_page"
-                    invisible="move_type not in ('out_invoice', 'in_invoice')">
+                    invisible="move_type not in ('out_invoice', 'out_refund', 'in_invoice')">
                     <field name="retention_cce_ids" nolabel="1">
                         <tree string="Retenciones / CCE" editable="bottom">
                             <field name="application_type" readonly="parent.state not in 'draft'" />

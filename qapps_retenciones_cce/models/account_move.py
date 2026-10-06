@@ -114,7 +114,7 @@ class AccountMove(models.Model):
         receivable_account = receivable_lines[0].account_id
         partner = self.partner_id
         # retention.amount está en la moneda de la FACTURA. Si la factura es en
-        # moneda extranjera (EI factura en USD), el asiento debe llevar
+        # moneda extranjera (por ejemplo USD), el asiento debe llevar
         # currency_id + amount_currency y el debit/credit convertido a moneda
         # compañía al TC de la factura; si no, se contabilizaría el monto en
         # moneda compañía y el reconcile contra el receivable en USD generaría

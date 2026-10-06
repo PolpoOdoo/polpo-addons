@@ -34,7 +34,7 @@ crédito fiscal" por compañía. Compatible con qapps_efactura (no lo requiere).
     "website": "https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_retenciones_cce",
     "support": "info@polpo.uy",
     "category": "Accounting",
-    "version": "17.0.1.0.15",
+    "version": "17.0.1.0.16",
     "license": 'LGPL-3',
     "depends": [
         "account",
