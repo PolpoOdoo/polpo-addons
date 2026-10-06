@@ -22,7 +22,7 @@
     'website': 'https://polpo.uy/?utm_source=odoo_apps&utm_medium=referral&utm_campaign=qapps_current_rate_uy_brou',
     'support': 'info@polpo.uy',
     'category': 'Accounting',
-    'version': '18.0.1.0.10',
+    'version': '18.0.1.0.11',
     'depends': ['base', 'account'],
     'license': 'LGPL-3',
     'data': [
